@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MediKiosk Physician Console | चिकित्सक कंसोल</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#00308F;--navy-dk:#001f6b;--saffron:#FF9933;--green:#138808;
+  --off:#f4f7fb;--card:#fff;--text:#1a1a2e;--muted:#6c757d;
+  --danger:#c0392b;--shadow:0 4px 24px rgba(0,48,143,.12);--border:#c8d6e5}
+body{font-family:'Noto Sans',sans-serif;background:var(--off);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+button{cursor:pointer;font-family:inherit}
+a{color:var(--navy);text-decoration:none}
+.hidden{display:none!important}
+input,select,textarea{font-family:inherit}
+/* TOP BAR */
+.gov-topbar{background:var(--navy-dk);color:#dde6ff;font-size:.76rem;padding:4px 20px;display:flex;justify-content:space-between}
+/* HEADER */
+.gov-header{background:linear-gradient(135deg,var(--navy),var(--navy-dk));color:#fff;padding:12px 24px;border-bottom:4px solid var(--green)}
+.header-inner{max-width:1400px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.hdr-left{display:flex;align-items:center;gap:14px}
+.emblem{width:56px;height:56px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4))}
+.ht h1{font-size:1.4rem;font-weight:700}
+.ht p{font-size:.82rem;opacity:.87;margin-top:2px}
+.ht .sub{font-size:.72rem;opacity:.7;margin-top:1px}
+.hdr-right{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 12px;font-size:.73rem}
+.doc-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:6px 14px;font-size:.8rem}
+.doc-badge strong{display:block;font-size:.88rem}
+.logout-btn{background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:.8rem;font-weight:600}
+/* SOS BANNER */
+.sos-banner{background:#c0392b;color:#fff;padding:0;max-height:0;overflow:hidden;transition:max-height .3s}
+.sos-banner.show{max-height:200px}
+.sos-inner{max-width:1400px;margin:auto;padding:10px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.sos-inner .sico{font-size:1.6rem;animation:pulse 1s infinite}
+.sos-txt{flex:1;font-size:.9rem;font-weight:600}
+.sos-txt span{display:block;font-weight:400;font-size:.78rem;opacity:.9}
+.sos-btn{background:#fff;color:#c0392b;border:none;border-radius:6px;padding:7px 16px;font-size:.8rem;font-weight:700}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+/* MAIN */
+.page{flex:1;display:flex;flex-direction:column}
+.main{flex:1;max-width:1400px;margin:24px auto;padding:0 20px;width:100%}
+/* LOGIN */
+.login-wrap{display:flex;justify-content:center;padding:20px 0}
+.login-card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:36px 32px;flex:0 0 460px;max-width:460px;border-top:5px solid var(--green)}
+.card-hdr{text-align:center;margin-bottom:26px}
+.card-icon{font-size:3rem;margin-bottom:8px}
+.card-hdr h2{font-size:1.5rem;color:var(--navy);font-weight:700}
+.card-hdr p{color:var(--muted);font-size:.9rem;margin-top:4px}
+.step-box{display:flex;flex-direction:column;gap:16px}
+.fg{display:flex;flex-direction:column;gap:6px}
+.fg label{font-weight:600;color:var(--text);font-size:.9rem}
+.big-inp,.big-sel{border:2px solid var(--border);border-radius:8px;padding:12px 14px;font-size:1rem;outline:none;transition:border .2s;width:100%}
+.big-inp:focus,.big-sel:focus{border-color:var(--navy);background:#f0f4ff}
+.hint{color:var(--muted);font-size:.8rem}
+.btn-row{display:flex;gap:12px}
+.btn-p{flex:1;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:14px;font-size:1rem;font-weight:700;transition:all .2s}
+.btn-p:hover{background:var(--navy-dk);transform:translateY(-1px)}
+.btn-p:disabled{opacity:.5;transform:none;cursor:not-allowed}
+.btn-g{background:var(--green);color:#fff;border:none;border-radius:8px;padding:14px;font-size:1rem;font-weight:700}
+.btn-g:hover{background:#0d6b06}
+.btn-s{background:#fff;color:var(--navy);border:2px solid var(--navy);border-radius:8px;padding:12px 20px;font-size:.92rem;font-weight:600;transition:all .2s}
+.btn-s:hover{background:#f0f4ff}
+.divider{text-align:center;color:var(--muted);font-size:.85rem}
+.demo-note{background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:10px;font-size:.8rem;color:#7b5c00;text-align:center}
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stat{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;border-left:5px solid var(--navy);display:flex;align-items:center;gap:12px}
+.stat.em{border-left-color:var(--danger)}
+.stat.gr{border-left-color:var(--green)}
+.stat.sf{border-left-color:var(--saffron)}
+.stat .sn{font-size:1.7rem}
+.stat .sv{font-size:1.5rem;font-weight:700;color:var(--text);line-height:1}
+.stat .sl{font-size:.78rem;color:var(--muted);margin-top:2px}
+/* DASHBOARD LAYOUT */
+.dash-layout{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start}
+.panel{background:var(--card);border-radius:12px;box-shadow:var(--shadow)}
+.panel-hdr{padding:16px 18px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px}
+.panel-hdr h3{font-size:1rem;color:var(--navy);font-weight:700;flex:1}
+.filter-btns{display:flex;gap:6px;padding:10px 14px;flex-wrap:wrap;border-bottom:1px solid #eee}
+.fbtn{background:#f0f4ff;border:1px solid var(--border);color:var(--navy);border-radius:16px;padding:5px 12px;font-size:.76rem;font-weight:600}
+.fbtn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.queue-list{max-height:640px;overflow-y:auto}
+.qitem{padding:14px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;transition:background .15s;border-left:4px solid transparent}
+.qitem:hover{background:#f6f9ff}
+.qitem.sel{background:#eaf1ff;border-left-color:var(--navy)}
+.qitem.flag{border-left-color:var(--danger);background:#fff5f5}
+.qitem.flag:hover,.qitem.flag.sel{background:#ffeaea}
+.qi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.qi-tkn{font-weight:700;font-size:.86rem;color:var(--navy)}
+.qi-wait{font-size:.72rem;color:var(--muted)}
+.qi-cc{font-size:.85rem;font-weight:600;margin-bottom:3px}
+.qi-meta{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:.68rem;font-weight:700;border-radius:10px;padding:2px 8px;text-transform:uppercase;letter-spacing:.3px}
+.tag.mode-allo{background:#e3ecff;color:var(--navy)}
+.tag.mode-ayush{background:#eafbe7;color:var(--green)}
+.tag.rf{background:var(--danger);color:#fff}
+.tag.done{background:#ddd;color:#555}
+.empty-q{padding:40px 20px;text-align:center;color:var(--muted);font-size:.88rem}
+.empty-q button{margin-top:14px}
+/* DETAIL PANEL */
+.detail-empty{padding:80px 30px;text-align:center;color:var(--muted)}
+.detail-empty .di{font-size:3rem;margin-bottom:10px}
+.detail-hdr{padding:18px 22px;border-bottom:1px solid #eee;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.detail-hdr h2{font-size:1.2rem;color:var(--navy);font-weight:700}
+.detail-hdr p{font-size:.82rem;color:var(--muted);margin-top:2px}
+.detail-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.abtn{border:none;border-radius:8px;padding:9px 16px;font-size:.85rem;font-weight:600;transition:all .2s}
+.abtn.gr{background:var(--green);color:#fff}.abtn.gr:hover{background:#0d6b06}
+.abtn.bl{background:var(--navy);color:#fff}.abtn.bl:hover{background:var(--navy-dk)}
+.abtn.or{background:var(--saffron);color:#000}.abtn.or:hover{background:#e68a00}
+.abtn.rd{background:#c0392b;color:#fff}.abtn.rd:hover{background:#962d22}
+.abtn.gh{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.rf-banner{margin:16px 22px 0;background:#ffeaea;border:2px solid #e74c3c;border-radius:10px;padding:12px 16px}
+.rf-banner h4{color:#c0392b;font-size:.9rem;margin-bottom:2px}
+.rf-banner p{color:#7b1a1a;font-size:.82rem}
+.detail-body{padding:20px 22px;display:grid;grid-template-columns:1.4fr 1fr;gap:22px}
+.ss{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #eee}
+.ss:last-of-type{border-bottom:none}
+.ss h4{font-size:.8rem;font-weight:700;color:var(--navy);margin-bottom:9px;text-transform:uppercase;letter-spacing:.5px}
+.sf{display:grid;grid-template-columns:135px 1fr;gap:6px;margin-bottom:6px;font-size:.86rem;align-items:center}
+.sf .fl{color:var(--muted);font-weight:600}
+.edit{border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:.86rem;width:100%;color:var(--text);background:#fafafa}
+.edit:focus{outline:none;border-color:var(--navy);background:#f0f4ff}
+.edit:disabled{background:#f2f2f2;color:#555}
+.side-block{background:#f8f9fb;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.side-block h4{font-size:.82rem;color:var(--navy);font-weight:700;margin-bottom:8px}
+.doc-item{background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 11px;margin-bottom:8px;font-size:.8rem}
+.doc-item .dname{font-weight:700;color:var(--text);margin-bottom:3px}
+.doc-item .docr{color:#333;font-size:.78rem;white-space:pre-line;line-height:1.5}
+.abn{color:#c0392b;font-weight:700}
+.qa-item{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px}
+.qa-item .qaq{font-size:.74rem;color:var(--muted)}
+.qa-item .qaa{font-size:.85rem;font-weight:600}
+.fhir-box{background:#0d1b2a;color:#9fe6a0;font-family:monospace;font-size:.74rem;padding:12px;border-radius:8px;max-height:220px;overflow:auto;white-space:pre-wrap;margin-top:10px;display:none}
+.fhir-box.show{display:block}
+.completed-strip{margin-top:16px}
+.completed-strip summary{cursor:pointer;font-size:.85rem;color:var(--navy);font-weight:600;padding:10px 4px}
+.cstrip-item{display:flex;justify-content:space-between;padding:8px 14px;font-size:.8rem;border-top:1px solid #eee;color:var(--muted)}
+/* FOOTER */
+.gov-footer{background:var(--navy-dk);color:#9aafd6;text-align:center;padding:11px 20px;font-size:.75rem;margin-top:auto}
+.gov-footer a{color:#a8c4f0}
+/* TOAST/MODAL */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a3a6e;color:#fff;padding:12px 28px;border-radius:30px;font-size:.9rem;box-shadow:0 4px 20px rgba(0,0,0,.25);transition:transform .35s;z-index:9999}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-ov.show{display:flex}
+.modal-box{background:#fff;border-radius:14px;padding:30px;max-width:460px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.25);position:relative}
+.modal-box h3{font-size:1.15rem;color:var(--navy);font-weight:700;margin-bottom:10px}
+.modal-box p{color:var(--muted);font-size:.88rem;line-height:1.6;margin-bottom:14px}
+.mc{position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.5rem;color:var(--muted);cursor:pointer}
+.mbtns{display:flex;gap:10px}
+@media(max-width:1000px){.dash-layout,.detail-body{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr 1fr}.hdr-right{display:none}}
+</style>
+</head>
+<body>
+<div class="gov-topbar">
+  <span>Government of India | भारत सरकार | Ministry of Health &amp; Family Welfare</span>
+  <span id="dt-bar"></span>
+</div>
+<header class="gov-header">
+  <div class="header-inner">
+    <div class="hdr-left">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Ashoka Emblem" class="emblem"/>
+      <div class="ht">
+        <h1>MediKiosk | Physician Console</h1>
+        <p>AI-Assisted Case Review | ABDM | AYUSH | DPDP 2023 Compliant</p>
+        <p class="sub">Smart India Hackathon 2024 | National Health Authority</p>
+      </div>
+    </div>
+    <div id="hdr-login-badges" class="hdr-right">
+      <span class="badge">&#128274; DPDP 2023 Compliant</span>
+      <span class="badge">&#128203; ABDM Registered</span>
+      <span class="badge">&#127973; NHA Approved</span>
+    </div>
+    <div id="hdr-dash-info" class="hdr-right hidden">
+      <div class="doc-badge"><strong id="doc-name">Dr. Demo</strong><span id="doc-meta">General OPD | Room 4</span></div>
+      <button class="logout-btn" onclick="endShift()">&#128275; End Shift</button>
+    </div>
+  </div>
+</header>
+
+<div class="sos-banner" id="sos-banner">
+  <div class="sos-inner">
+    <span class="sico">&#128680;</span>
+    <div class="sos-txt" id="sos-txt">Emergency alert</div>
+    <button class="sos-btn" onclick="dismissSOS()">Acknowledge</button>
+  </div>
+</div>
+
+<!-- ================= LOGIN PAGE ================= -->
+<div id="page-login" class="page">
+  <div class="main">
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="card-hdr">
+          <div class="card-icon">&#129658;</div>
+          <h2>Physician Login</h2>
+          <p>Sign in to view your patient queue</p>
+        </div>
+        <div class="step-box">
+          <div class="fg">
+            <label>Doctor Name</label>
+            <input type="text" id="doc-name-inp" class="big-inp" placeholder="Dr. Ayesha Sharma"/>
+          </div>
+          <div class="fg">
+            <label>Department</label>
+            <select id="doc-dept-inp" class="big-sel">
+              <option>General OPD</option>
+              <option>Internal Medicine</option>
+              <option>Cardiology</option>
+              <option>AYUSH / Integrative Medicine</option>
+              <option>Emergency &amp; Triage</option>
+              <option>Pediatrics</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>OPD Room No.</label>
+            <input type="text" id="doc-room-inp" class="big-inp" placeholder="Room 4"/>
+          </div>
+          <div class="btn-row">
+            <button class="btn-g" onclick="startShift()">&#10004; Start Shift</button>
+          </div>
+          <div class="divider">&#8212; OR &#8212;</div>
+          <button class="btn-s" onclick="quickDemoLogin()">&#9889; Continue as Demo Doctor</button>
+        </div>
+        <div class="demo-note" style="margin-top:18px">This console reads patients live from the kiosk (MediKiosk_Prototype). Open the patient kiosk in another tab and send a summary to see it appear here instantly &#8211; or load sample patients from the dashboard once signed in.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= DASHBOARD PAGE ================= -->
+<div id="page-dash" class="page hidden">
+  <div class="main">
+
+    <div class="stats-row">
+      <div class="stat"><span class="sn">&#128100;</span><div><div class="sv" id="st-waiting">0</div><div class="sl">Waiting</div></div></div>
+      <div class="stat em"><span class="sn">&#9888;</span><div><div class="sv" id="st-flags">0</div><div class="sl">Red-Flag Alerts</div></div></div>
+      <div class="stat sf"><span class="sn">&#9203;</span><div><div class="sv" id="st-avgwait">0m</div><div class="sl">Avg. Wait Time</div></div></div>
+      <div class="stat gr"><span class="sn">&#9989;</span><div><div class="sv" id="st-done">0</div><div class="sl">Completed Today</div></div></div>
+    </div>
+
+    <div class="dash-layout">
+      <!-- QUEUE -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <h3>&#128203; Patient Queue</h3>
+          <button class="btn-s" style="padding:6px 10px;font-size:.76rem" onclick="loadDemoPatients()">+ Sample</button>
+        </div>
+        <div class="filter-btns">
+          <button class="fbtn active" data-f="all" onclick="setFilter('all',this)">All</button>
+          <button class="fbtn" data-f="flag" onclick="setFilter('flag',this)">&#128680; Emergency</button>
+          <button class="fbtn" data-f="allo" onclick="setFilter('allo',this)">Allopathic</button>
+          <button class="fbtn" data-f="ayush" onclick="setFilter('ayush',this)">AYUSH</button>
+        </div>
+        <div class="queue-list" id="queue-list"></div>
+        <details class="completed-strip">
+          <summary id="completed-summary">Completed today (0)</summary>
+          <div id="completed-list"></div>
+        </details>
+      </div>
+
+      <!-- DETAIL -->
+      <div class="panel" id="detail-panel">
+        <div class="detail-empty">
+          <div class="di">&#128100;</div>
+          <p>Select a patient from the queue to review their AI-drafted history.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="gov-footer">
+  <p>&#169; 2024 Ministry of Health &amp; Family Welfare, Government of India &nbsp;|&nbsp;
+    <a href="#">Privacy Policy</a> &nbsp;|&nbsp;<a href="#">Grievance</a> &nbsp;|&nbsp;
+    ABDM Compliant &nbsp;|&nbsp; DPDP Act 2023 &nbsp;|&nbsp; Session Auto-Delete on Confirmation</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+<div class="modal-ov" id="modal">
+  <div class="modal-box">
+    <button class="mc" onclick="closeModal()">&#215;</button>
+    <h3 id="modal-t">Confirm</h3><p id="modal-b">Are you sure?</p>
+    <div class="mbtns"><button class="btn-s" onclick="closeModal()">Cancel</button><button class="btn-p" id="modal-ok">OK</button></div>
+  </div>
+</div>
+
+<script>
+// ============ SHARED STORAGE KEYS (matches MediKiosk patient-side kiosk) ============
+var MK_QUEUE_KEY='mk_queue', MK_SOS_KEY='mk_sos', MK_DONE_KEY='mk_completed';
+function mkLoad(key){try{return JSON.parse(localStorage.getItem(key))||[];}catch(e){return [];}}
+function mkSave(key,arr){try{localStorage.setItem(key,JSON.stringify(arr));}catch(e){}}
+
+// ============ CLOCK ============
+function tick(){var el=document.getElementById('dt-bar');if(el)el.textContent=new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});}
+setInterval(tick,1000);tick();
+
+// ============ LOGIN ============
+function startShift(){
+  var n=document.getElementById('doc-name-inp').value.trim()||'Dr. Demo';
+  var d=document.getElementById('doc-dept-inp').value;
+  var r=document.getElementById('doc-room-inp').value.trim()||'Room 4';
+  enterDash(n,d,r);
+}
+function quickDemoLogin(){enterDash('Dr. Ayesha Sharma','General OPD','Room 4');}
+function enterDash(name,dept,room){
+  document.getElementById('doc-name').textContent=name;
+  document.getElementById('doc-meta').textContent=dept+' | '+room;
+  document.getElementById('page-login').classList.add('hidden');
+  document.getElementById('page-dash').classList.remove('hidden');
+  document.getElementById('hdr-login-badges').classList.add('hidden');
+  document.getElementById('hdr-dash-info').classList.remove('hidden');
+  toast('Shift started. Loading patient queue...');
+  renderAll();
+  startPolling();
+}
+function endShift(){
+  showModal('End Shift','Are you sure you want to end your shift and log out?',function(){
+    document.getElementById('page-dash').classList.add('hidden');
+    document.getElementById('page-login').classList.remove('hidden');
+    document.getElementById('hdr-login-badges').classList.remove('hidden');
+    document.getElementById('hdr-dash-info').classList.add('hidden');
+    stopPolling();
+  });
+}
+
+// ============ FILTER / SELECTION STATE ============
+var curFilter='all', selId=null, seenFlagIds={}, sosSeenIds={};
+
+function setFilter(f,btn){
+  curFilter=f;
+  document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderQueue();
+}
+
+// ============ POLLING (keeps this tab in sync with the kiosk tab) ============
+var pollTimer=null;
+function startPolling(){
+  window.addEventListener('storage',renderAll);
+  pollTimer=setInterval(renderAll,3000);
+}
+function stopPolling(){
+  window.removeEventListener('storage',renderAll);
+  if(pollTimer)clearInterval(pollTimer);
+}
+
+function renderAll(){
+  checkNewFlags();
+  checkSOS();
+  renderStats();
+  renderQueue();
+  if(selId) renderDetail(selId);
+}
+
+// ============ STATS ============
+function renderStats(){
+  var q=mkLoad(MK_QUEUE_KEY).filter(function(p){return p.status!=='completed';});
+  var done=mkLoad(MK_DONE_KEY);
+  var flags=q.filter(function(p){return !!p.redFlag;}).length;
+  var avg=0;
+  if(q.length){
+    var totalMin=q.reduce(function(s,p){return s+((Date.now()-p.createdAt)/60000);},0);
+    avg=Math.round(totalMin/q.length);
+  }
+  document.getElementById('st-waiting').textContent=q.length;
+  document.getElementById('st-flags').textContent=flags;
+  document.getElementById('st-avgwait').textContent=avg+'m';
+  document.getElementById('st-done').textContent=done.length;
+}
+
+// ============ QUEUE RENDER ============
+function waitStr(ts){
+  var m=Math.round((Date.now()-ts)/60000);
+  if(m<1)return 'just now';
+  if(m===1)return '1 min wait';
+  if(m<60)return m+' min wait';
+  return Math.round(m/60)+'h '+(m%60)+'m wait';
+}
+function renderQueue(){
+  var q=mkLoad(MK_QUEUE_KEY).filter(function(p){return p.status!=='completed';});
+  q.sort(function(a,b){
+    if(!!a.redFlag!==!!b.redFlag) return a.redFlag?-1:1;
+    return a.createdAt-b.createdAt;
+  });
+  if(curFilter==='flag') q=q.filter(function(p){return !!p.redFlag;});
+  if(curFilter==='allo') q=q.filter(function(p){return p.mode!=='ayush';});
+  if(curFilter==='ayush') q=q.filter(function(p){return p.mode==='ayush';});
+
+  var list=document.getElementById('queue-list');
+  if(!q.length){
+    list.innerHTML='<div class="empty-q">No patients in this view yet.<br/>Send a summary from the patient kiosk, or<br/><button class="btn-s" onclick="loadDemoPatients()">Load Sample Patients</button></div>';
+  } else {
+    list.innerHTML=q.map(function(p){
+      var cc=(p.summary&&p.summary.cc)||(p.mode==='ayush'?'AYUSH history intake':'General complaint');
+      return '<div class="qitem'+(p.redFlag?' flag':'')+(p.id===selId?' sel':'')+'" onclick="selectPatient(\''+p.id+'\')">'+
+        '<div class="qi-top"><span class="qi-tkn">'+p.id+'</span><span class="qi-wait">'+waitStr(p.createdAt)+'</span></div>'+
+        '<div class="qi-cc">'+esc(cc)+'</div>'+
+        '<div class="qi-meta">'+
+          '<span class="tag mode-'+(p.mode==='ayush'?'ayush':'allo')+'">'+(p.mode==='ayush'?'AYUSH':'Allopathic')+'</span>'+
+          (p.redFlag?'<span class="tag rf">Emergency</span>':'')+
+          '<span class="tag" style="background:#eee;color:#555">'+esc(p.patientLabel||'Guest')+'</span>'+
+        '</div></div>';
+    }).join('');
+  }
+
+  var done=mkLoad(MK_DONE_KEY);
+  document.getElementById('completed-summary').textContent='Completed today ('+done.length+')';
+  document.getElementById('completed-list').innerHTML=done.slice().reverse().map(function(d){
+    return '<div class="cstrip-item"><span>'+d.id+' &middot; '+esc(d.cc||'')+'</span><span>'+new Date(d.completedAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+'</span></div>';
+  }).join('') || '<div class="cstrip-item"><span>No consultations completed yet</span><span></span></div>';
+}
+
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+// ============ RED-FLAG / SOS ALERT DETECTION ============
+function checkNewFlags(){
+  var q=mkLoad(MK_QUEUE_KEY);
+  q.forEach(function(p){
+    if(p.redFlag && p.status!=='completed' && !seenFlagIds[p.id]){
+      seenFlagIds[p.id]=true;
+      showSOS('Emergency flag: '+p.id+' ('+(p.patientLabel||'Guest')+')',p.redFlag);
+    }
+  });
+}
+function checkSOS(){
+  var sos=mkLoad(MK_SOS_KEY);
+  sos.forEach(function(s){
+    if(!sosSeenIds[s.id]){
+      sosSeenIds[s.id]=true;
+      showSOS('SOS button pressed by '+(s.patientLabel||'Guest')+' at the kiosk',s.msg);
+    }
+  });
+}
+function showSOS(title,detail){
+  document.getElementById('sos-txt').innerHTML=title+'<span>'+esc(detail||'')+'</span>';
+  document.getElementById('sos-banner').classList.add('show');
+}
+function dismissSOS(){document.getElementById('sos-banner').classList.remove('show');}
+
+// ============ PATIENT DETAIL ============
+function selectPatient(id){
+  selId=id;
+  renderQueue();
+  renderDetail(id);
+}
+function getPatient(id){
+  return mkLoad(MK_QUEUE_KEY).find(function(p){return p.id===id;});
+}
+function updatePatient(id,fn){
+  var q=mkLoad(MK_QUEUE_KEY);
+  var idx=q.findIndex(function(p){return p.id===id;});
+  if(idx<0)return;
+  fn(q[idx]);
+  mkSave(MK_QUEUE_KEY,q);
+}
+
+function renderDetail(id){
+  var p=getPatient(id);
+  var panel=document.getElementById('detail-panel');
+  if(!p){
+    panel.innerHTML='<div class="detail-empty"><div class="di">&#128100;</div><p>Select a patient from the queue to review their AI-drafted history.</p></div>';
+    selId=null;
+    return;
+  }
+  var s=p.summary||{};
+  var isAyush=p.mode==='ayush';
+
+  var html='';
+  html+='<div class="detail-hdr">';
+  html+='<div><h2>'+p.id+' &middot; '+esc(p.patientLabel||'Guest')+'</h2>';
+  html+='<p>'+(isAyush?'AYUSH / Dashavidha intake':'Allopathic intake')+' &middot; '+waitStr(p.createdAt)+' &middot; Language: '+(p.lang||'en').toUpperCase()+'</p></div>';
+  html+='<div class="detail-actions">';
+  html+='<button class="abtn gh" onclick="genFHIRFor(\''+p.id+'\')">&#128230; FHIR Bundle</button>';
+  html+='<button class="abtn or" onclick="window.print()">&#128424; Print</button>';
+  html+='<button class="abtn bl" onclick="sendBack(\''+p.id+'\')">&#8617; Request More Info</button>';
+  html+='<button class="abtn gr" onclick="confirmComplete(\''+p.id+'\')">&#10004; Confirm &amp; Complete</button>';
+  html+='</div></div>';
+
+  if(p.redFlag){
+    html+='<div class="rf-banner"><h4>&#9888; Emergency Alert Detected During Intake</h4><p>'+esc(p.redFlag)+' &mdash; verify immediately.</p></div>';
+  }
+
+  html+='<div class="detail-body">';
+  // LEFT: structured summary (editable)
+  html+='<div class="sum-col">';
+  if(!isAyush){
+    html+=sBlock('Chief Complaint',[['Main Problem','cc',s.cc]]);
+    html+=sBlock('History of Present Illness (SOCRATES)',[
+      ['Site','site',s.site],['Onset','onset',s.onset],['Character','char',s.char],
+      ['Radiation','rad',s.rad],['Associated','assoc',s.assoc],['Exacerbating','exac',s.exac],['Severity','sev',s.sev]
+    ]);
+    html+=sBlock('Past Medical History',[['Conditions','pmh',s.pmh],['Surgeries','surg',s.surg]]);
+    html+=sBlock('Drug &amp; Allergy History',[['Current Meds','meds',s.meds],['Allergies','allergy',s.allergy]]);
+    html+=sBlock('Family History',[['Family','fam',s.fam]]);
+    html+=sBlock('Review of Systems',[['Systems','ros',s.ros]]);
+  } else {
+    html+='<div class="ss"><h4>Dashavidha Pariksha Responses</h4>';
+    (p.answers||[]).forEach(function(qa){
+      html+='<div class="qa-item"><div class="qaq">'+esc(qa.q)+'</div><div class="qaa">'+esc(qa.a)+'</div></div>';
+    });
+    html+='</div>';
+  }
+  html+='<div class="demo-note">&#9888; AI-generated DRAFT from Module C. Fields are editable &mdash; confirm only after physician verification.</div>';
+  html+='<div class="fhir-box" id="fhir-box-'+p.id+'"></div>';
+  html+='</div>';
+
+  // RIGHT: raw Q&A (allo) + documents
+  html+='<div class="side-col">';
+  if(!isAyush){
+    html+='<div class="side-block"><h4>&#128203; Full Conversation (Module A)</h4>';
+    (p.answers||[]).forEach(function(qa){
+      html+='<div class="qa-item"><div class="qaq">'+esc(qa.q)+'</div><div class="qaa">'+esc(qa.a)+'</div></div>';
+    });
+    html+='</div>';
+  }
+  html+='<div class="side-block"><h4>&#128196; Uploaded Documents (Module B &mdash; OCR)</h4>';
+  if(!p.documents || !p.documents.length){
+    html+='<p style="font-size:.8rem;color:var(--muted)">No documents uploaded by patient.</p>';
+  } else {
+    p.documents.forEach(function(d){
+      var ocr=(d.ocr||'').replace(/\u26A0[^<]*/,function(m){return '';});
+      var flagged=/abnormal/i.test(d.ocr||'');
+      html+='<div class="doc-item"><div class="dname">'+esc(d.type)+': '+esc(d.name)+'</div>';
+      html+='<div class="docr">'+(d.ocr?formatOcr(d.ocr):'Processing...')+'</div></div>';
+    });
+  }
+  html+='</div>';
+  html+='<div class="side-block"><h4>&#128274; DPDP / Session Note</h4><p style="font-size:.78rem;color:var(--muted)">Confirming this summary finalizes the record and permanently deletes the patient\'s raw session data from the kiosk queue, per the consent terms shown at intake.</p></div>';
+  html+='</div>';
+
+  html+='</div>'; // detail-body
+
+  panel.innerHTML=html;
+
+  // wire up editable inputs to persist back into storage on change
+  panel.querySelectorAll('.edit').forEach(function(inp){
+    inp.addEventListener('change',function(){
+      var field=inp.dataset.field;
+      updatePatient(p.id,function(pat){pat.summary=pat.summary||{};pat.summary[field]=inp.value;});
+    });
+  });
+}
+
+function formatOcr(txt){
+  return txt.replace(/<[^>]*>/g,'\n').replace(/\n{2,}/g,'\n').trim();
+}
+
+function sBlock(title,fields){
+  var h='<div class="ss"><h4>'+title+'</h4>';
+  fields.forEach(function(f){
+    h+='<div class="sf"><span class="fl">'+f[0]+':</span><input class="edit" data-field="'+f[1]+'" value="'+esc(f[2]||'')+'"/></div>';
+  });
+  h+='</div>';
+  return h;
+}
+
+// ============ ACTIONS ============
+function sendBack(id){
+  showModal('Request More Information','Send this patient back to the kiosk for additional questions or documents?',function(){
+    updatePatient(id,function(p){p.status='needs-info';});
+    toast('Patient '+id+' flagged for more information.');
+    renderAll();
+  });
+}
+function confirmComplete(id){
+  showModal('Confirm & Complete Consultation','This finalizes the AI-drafted summary as verified and permanently deletes the patient\'s raw session data, per DPDP 2023. Continue?',function(){
+    var p=getPatient(id);
+    if(!p)return;
+    var done=mkLoad(MK_DONE_KEY);
+    done.push({id:p.id,cc:(p.summary&&p.summary.cc)||'AYUSH intake',completedAt:Date.now()});
+    mkSave(MK_DONE_KEY,done);
+    // purge raw session data, keep only a minimal completed marker in the queue
+    var q=mkLoad(MK_QUEUE_KEY).filter(function(x){return x.id!==id;});
+    mkSave(MK_QUEUE_KEY,q);
+    toast('Consultation for '+id+' confirmed. Session data deleted (DPDP 2023).');
+    selId=null;
+    renderAll();
+  });
+}
+function genFHIRFor(id){
+  var p=getPatient(id);
+  if(!p)return;
+  var s=p.summary||{};
+  var bundle={
+    resourceType:'Bundle',type:'collection',
+    entry:[
+      {resource:{resourceType:'Patient',identifier:[{system:'https://healthid.ndhm.gov.in',value:p.patientLabel}],id:p.id}},
+      {resource:{resourceType:'Condition',code:{text:s.cc||'Unspecified'},id:p.id+'-cond'}},
+      {resource:{resourceType:'MedicationStatement',medicationCodeableConcept:{text:s.meds||'None reported'},id:p.id+'-med'}}
+    ]
+  };
+  var box=document.getElementById('fhir-box-'+id);
+  if(!box)return;
+  box.textContent=JSON.stringify(bundle,null,2);
+  box.classList.add('show');
+  toast('FHIR R4 Bundle generated for '+id);
+}
+
+// ============ DEMO SEED DATA ============
+function loadDemoPatients(){
+  var q=mkLoad(MK_QUEUE_KEY);
+  var now=Date.now();
+  var samples=[
+    {id:'TKN-2024-'+Math.floor(1000+Math.random()*9000),createdAt:now-14*60000,status:'waiting',mode:'allo',lang:'en',
+     patientLabel:'ABHA: 12-3456-7890-0091',redFlag:null,
+     summary:{cc:'Fever and body ache',site:'Whole body',onset:'2-3 days ago',char:'As reported by patient',rad:'No radiation',assoc:'Nausea, mild headache',exac:'Rest helps',sev:'4-6 Moderate',pmh:'None',surg:'No known surgeries',meds:'Paracetamol occasionally',allergy:'No known allergies',fam:'As described by patient',ros:'No other system complaints reported'},
+     answers:[{q:'What is your main health problem today?',a:'Fever'},{q:'When did this problem start?',a:'2-3 days ago'},{q:'How severe is your pain or discomfort?',a:'4-6 Moderate'}],
+     documents:[{type:'Lab Report',name:'CBC_report.jpg (210.4 KB)',ocr:'Date: '+new Date().toLocaleDateString('en-IN')+'\nDiagnosis: Viral fever\nLabs: WBC 11,200 /uL (Slightly high), Hb 13.1 g/dL (Normal)'}]},
+    {id:'TKN-2024-'+Math.floor(1000+Math.random()*9000),createdAt:now-4*60000,status:'waiting',mode:'allo',lang:'hi',
+     patientLabel:'Guest Patient',redFlag:'Possible cardiac event detected. Medical staff has been alerted. Please stay calm.',
+     summary:{cc:'Chest Pain',site:'Chest',onset:'Today',char:'As reported by patient',rad:'Spreads to arm',assoc:'Sweating, difficulty breathing',exac:'Nothing helps',sev:'9-10 Unbearable',pmh:'Hypertension',surg:'No known surgeries',meds:'Tab Amlodipine 5mg OD',allergy:'No known allergies',fam:'As described by patient',ros:'No other system complaints reported'},
+     answers:[{q:'What is your main health problem today?',a:'Chest Pain'},{q:'Where exactly do you feel the pain or problem?',a:'Chest'},{q:'How severe is your pain or discomfort?',a:'9-10 Unbearable'}],
+     documents:[]},
+    {id:'TKN-2024-'+Math.floor(1000+Math.random()*9000),createdAt:now-25*60000,status:'waiting',mode:'ayush',lang:'en',
+     patientLabel:'ABHA: 98-7654-3210-0045',redFlag:null,summary:{},
+     answers:[{q:'What is your Prakriti (body constitution)?',a:'Vata-Pitta'},{q:'What is your Vikriti (current imbalance)?',a:'Pitta (heat, inflammation)'},{q:'How is your Agni (digestive fire)?',a:'Poor appetite'}],
+     documents:[]}
+  ];
+  mkSave(MK_QUEUE_KEY,q.concat(samples));
+  toast('3 sample patients added to the queue.');
+  renderAll();
+}
+
+// ============ MODAL & TOAST ============
+function showModal(title,body,onOk){
+  document.getElementById('modal-t').textContent=title;
+  document.getElementById('modal-b').textContent=body;
+  document.getElementById('modal-ok').onclick=function(){closeModal();if(onOk)onOk();};
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+function toast(msg,dur){
+  dur=dur||3500;
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},dur);
+}
+</script>
+</body>
+</html>
