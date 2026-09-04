@@ -1,0 +1,953 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Swasthya Kiosk | स्वास्थ्य कियोस्क</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#00308F;--navy-dk:#001f6b;--saffron:#FF9933;--green:#138808;
+  --off:#f4f7fb;--card:#fff;--text:#1a1a2e;--muted:#6c757d;
+  --danger:#c0392b;--shadow:0 4px 24px rgba(0,48,143,.12);--border:#c8d6e5}
+body{font-family:'Noto Sans',sans-serif;background:var(--off);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+button{cursor:pointer;font-family:inherit}
+a{color:var(--navy);text-decoration:none}
+.hidden{display:none!important}
+/* TOP BAR */
+.gov-topbar{background:var(--navy-dk);color:#dde6ff;font-size:.76rem;padding:4px 20px;display:flex;justify-content:space-between}
+/* HEADER */
+.gov-header{background:linear-gradient(135deg,var(--navy),var(--navy-dk));color:#fff;padding:12px 24px;border-bottom:4px solid var(--saffron)}
+.header-inner{max-width:1300px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.hdr-left{display:flex;align-items:center;gap:14px}
+.emblem{width:56px;height:56px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4))}
+.ht h1{font-size:1.4rem;font-weight:700}
+.ht p{font-size:.82rem;opacity:.87;margin-top:2px}
+.ht .sub{font-size:.72rem;opacity:.7;margin-top:1px}
+.hdr-right{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 12px;font-size:.73rem}
+.pat-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:6px 14px;font-size:.8rem}
+.pat-badge strong{display:block;font-size:.88rem}
+.logout-btn{background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:.8rem;font-weight:600}
+/* LANG BAR */
+.lang-bar{background:#1a3a6e;display:flex;align-items:center;gap:8px;padding:7px 24px;flex-wrap:wrap}
+.lang-label{color:#b8d0ff;font-size:.8rem;white-space:nowrap}
+.lang-btns{display:flex;gap:5px;flex-wrap:wrap}
+.lang-btn{background:transparent;border:1px solid rgba(255,255,255,.3);color:#dde6ff;border-radius:4px;padding:3px 11px;font-size:.78rem;transition:all .2s}
+.lang-btn.active,.lang-btn:hover{background:var(--saffron);color:#000;border-color:var(--saffron);font-weight:600}
+.vbar{margin-left:auto;display:flex;gap:8px}
+.vbtn{background:#138808;color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:.8rem;font-weight:600}
+.vbtn.listening{background:#e74c3c;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+/* BREADCRUMB */
+.breadcrumb{background:#e8eef8;border-bottom:1px solid var(--border);padding:10px 24px}
+.bc-inner{max-width:1300px;margin:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bc-step{font-size:.8rem;color:var(--muted);padding:4px 14px;border-radius:20px}
+.bc-step.active{background:var(--navy);color:#fff;font-weight:600}
+.bc-step.done{background:var(--green);color:#fff}
+/* MAIN */
+.page{flex:1;display:flex;flex-direction:column}
+.main{flex:1;max-width:1300px;margin:28px auto;padding:0 20px;width:100%}
+/* LOGIN PAGE */
+.login-wrap{display:flex;gap:28px;align-items:flex-start}
+.login-card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:36px 32px;flex:0 0 430px;max-width:430px;border-top:5px solid var(--navy)}
+.card-hdr{text-align:center;margin-bottom:28px}
+.card-icon{font-size:3rem;margin-bottom:8px}
+.card-hdr h2{font-size:1.5rem;color:var(--navy);font-weight:700}
+.card-hdr p{color:var(--muted);font-size:.9rem;margin-top:4px}
+.step-box{display:flex;flex-direction:column;gap:18px}
+.fg{display:flex;flex-direction:column;gap:8px}
+.fg label{font-weight:600;color:var(--text);font-size:.92rem}
+.inp-row{display:flex;gap:8px}
+.big-inp{flex:1;border:2px solid var(--border);border-radius:8px;padding:14px 16px;font-size:1.1rem;outline:none;transition:border .2s;letter-spacing:1px}
+.big-inp:focus{border-color:var(--navy);background:#f0f4ff}
+.mic-sm{background:var(--navy);color:#fff;border:none;border-radius:8px;width:52px;flex-shrink:0;font-size:1.3rem;transition:background .2s}
+.mic-sm:hover{background:var(--navy-dk)}
+.hint{color:var(--muted);font-size:.8rem}
+.otp-row{display:flex;gap:8px;justify-content:center}
+.otp-in{width:48px;height:56px;text-align:center;border:2px solid var(--border);border-radius:8px;font-size:1.5rem;font-weight:700;outline:none;transition:border .2s}
+.otp-in:focus{border-color:var(--navy);background:#f0f4ff}
+.btn-row{display:flex;gap:12px}
+.btn-p{flex:1;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:14px;font-size:1rem;font-weight:700;transition:all .2s}
+.btn-p:hover{background:var(--navy-dk);transform:translateY(-1px)}
+.btn-p:disabled{opacity:.5;transform:none}
+.btn-s{background:#fff;color:var(--navy);border:2px solid var(--navy);border-radius:8px;padding:12px 20px;font-size:.95rem;font-weight:600;transition:all .2s}
+.btn-s:hover{background:#f0f4ff}
+.divider{text-align:center;color:var(--muted);font-size:.85rem}
+.demo-note{background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:10px;font-size:.8rem;color:#7b5c00;text-align:center}
+.resend{text-align:center}
+/* INFO PANEL */
+.info-panel{flex:1;display:flex;flex-direction:column;gap:18px}
+.info-panel h3{font-size:1.15rem;color:var(--navy);font-weight:700;border-bottom:3px solid var(--saffron);padding-bottom:8px}
+.info-steps{display:flex;flex-direction:column;gap:12px}
+.info-step{display:flex;align-items:flex-start;gap:14px;background:#fff;border-radius:10px;padding:14px;box-shadow:var(--shadow);border-left:5px solid var(--navy)}
+.snum{background:var(--navy);color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0}
+.info-step strong{display:block;font-size:.95rem;margin-bottom:2px}
+.info-step p{color:var(--muted);font-size:.83rem}
+.helpline{background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border:1px solid #a5d6a7;border-radius:10px;padding:14px;text-align:center}
+.helpline p{font-size:.88rem;margin-bottom:5px}
+/* DASHBOARD SCREENS */
+.scr-hdr{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.sico{font-size:2.4rem}
+.stitle h2{font-size:1.3rem;color:var(--navy);font-weight:700}
+.stitle p{color:var(--muted);font-size:.86rem;margin-top:3px}
+/* CONSENT */
+.consent-card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:32px;border-top:5px solid var(--saffron);max-width:700px;margin:auto}
+.consent-txt{background:#f8f9fa;border:1px solid #ddd;border-radius:8px;padding:20px;font-size:.9rem;line-height:1.7;max-height:250px;overflow-y:auto;color:#333;margin-bottom:18px}
+.consent-txt h4{color:var(--navy);font-size:1rem;margin-bottom:10px}
+.audio-btn{background:#1a3a6e;color:#fff;border:none;border-radius:6px;padding:9px 20px;font-size:.85rem;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.consent-chk{display:flex;align-items:center;gap:12px;margin-bottom:18px;font-size:.95rem;font-weight:600;cursor:pointer}
+.consent-chk input{width:22px;height:22px;accent-color:var(--navy)}
+/* SYMPTOM ATM */
+.atm-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:26px}
+.card-t{border-top:5px solid var(--navy)}
+.card-g{border-top:5px solid var(--green)}
+.q-num{display:inline-block;background:var(--navy);color:#fff;border-radius:50%;width:36px;height:36px;line-height:36px;text-align:center;font-weight:700;margin-bottom:12px}
+.q-txt{font-size:1.1rem;font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.5}
+.q-sub{color:var(--muted);font-size:.85rem;margin-bottom:18px}
+.v-area{display:flex;align-items:center;gap:10px;background:#f0f4ff;border:2px dashed var(--navy);border-radius:10px;padding:14px;margin-bottom:14px;min-height:64px;flex-wrap:wrap}
+.vtxt{flex:1;font-size:.93rem;color:var(--text);min-width:180px;word-break:break-word}
+.mic-big{background:var(--navy);color:#fff;border:none;border-radius:50%;width:52px;height:52px;font-size:1.3rem;flex-shrink:0;transition:all .2s}
+.mic-big:hover{background:var(--navy-dk)}
+.mic-big.listening{background:#e74c3c;animation:pulse 1s infinite}
+.mcq-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.mcq-btn{background:#f0f4ff;border:2px solid var(--border);border-radius:8px;padding:12px;font-size:.9rem;font-weight:600;color:var(--navy);transition:all .15s;text-align:left}
+.mcq-btn:hover,.mcq-btn.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
+.nav-btns{display:flex;gap:10px;margin-top:6px}
+.btn-skip{background:transparent;color:var(--muted);border:1px solid #ddd;border-radius:8px;padding:12px 16px;font-size:.88rem}
+.btn-skip:hover{background:#f5f5f5}
+.prog-bg{background:#e8eef8;border-radius:20px;height:14px;overflow:hidden;margin-bottom:4px}
+.prog-fill{background:linear-gradient(90deg,var(--navy),#4a90d9);height:100%;border-radius:20px;transition:width .4s}
+.prog-lbl{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-bottom:12px}
+.ans-list{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
+.ans-item{background:#f8f9fa;border-radius:8px;padding:10px 12px;border-left:3px solid var(--navy)}
+.ans-item .ql{font-size:.74rem;color:var(--muted);margin-bottom:2px}
+.ans-item .av{font-size:.88rem;font-weight:600}
+.red-flag{background:#ffeaea;border:2px solid #e74c3c;border-radius:10px;padding:14px;margin-top:14px;display:none}
+.red-flag.show{display:block}
+.red-flag h4{color:#c0392b;font-size:.93rem;font-weight:700;margin-bottom:4px}
+.red-flag p{color:#7b1a1a;font-size:.82rem}
+/* DOC UPLOAD */
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.uzone{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:26px;border-top:5px solid var(--navy);display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.uzone h3{font-size:1rem;color:var(--navy);font-weight:700}
+.uzone p{color:var(--muted);font-size:.83rem}
+.ubtn{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:11px 26px;font-size:.92rem;font-weight:600;width:100%}
+.ubtn:hover{background:var(--navy-dk)}
+.fhid{display:none}
+.ufiles{width:100%;text-align:left;display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.fitem{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:6px;padding:7px 10px;font-size:.8rem;color:#1b5e20;display:flex;justify-content:space-between;align-items:center}
+.fitem .rmv{background:none;border:none;color:#c0392b;font-size:1rem;cursor:pointer}
+.ocr-r{background:#f0f4ff;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:.8rem;margin-top:8px;display:none;width:100%;text-align:left}
+.ocr-r.show{display:block}
+/* SUMMARY */
+.sum-layout{display:grid;grid-template-columns:2fr 1fr;gap:22px}
+.sum-card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:26px;border-top:5px solid var(--green)}
+.sum-card h3{font-size:1rem;color:var(--green);font-weight:700;margin-bottom:14px}
+.ss{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #eee}
+.ss:last-of-type{border-bottom:none}
+.ss h4{font-size:.82rem;font-weight:700;color:var(--navy);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.sf{display:grid;grid-template-columns:155px 1fr;gap:6px;margin-bottom:5px;font-size:.86rem;align-items:center}
+.sf .fl{color:var(--muted);font-weight:600}
+.edit{border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-size:.86rem;width:100%;color:var(--text);background:#fafafa}
+.edit:focus{outline:none;border-color:var(--navy);background:#f0f4ff}
+.sidebar{display:flex;flex-direction:column;gap:12px}
+.ac{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:18px}
+.ac h4{font-size:.9rem;font-weight:700;color:var(--navy);margin-bottom:10px}
+.abtn{width:100%;border:none;border-radius:8px;padding:11px;font-size:.88rem;font-weight:600;margin-bottom:7px;transition:all .2s;cursor:pointer}
+.abtn.gr{background:var(--green);color:#fff}.abtn.gr:hover{background:#0d6b06}
+.abtn.bl{background:var(--navy);color:#fff}.abtn.bl:hover{background:var(--navy-dk)}
+.abtn.or{background:var(--saffron);color:#000}.abtn.or:hover{background:#e68a00}
+.abtn.rd{background:#c0392b;color:#fff}.abtn.rd:hover{background:#962d22}
+.abtn.em{background:#e74c3c;color:#fff;font-size:.95rem}.abtn.em:hover{background:#c0392b}
+.fhir-ok{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:6px;padding:7px 10px;font-size:.77rem;color:#1b5e20;text-align:center;display:none;margin-top:4px}
+/* FOOTER */
+.gov-footer{background:var(--navy-dk);color:#9aafd6;text-align:center;padding:11px 20px;font-size:.75rem;margin-top:auto}
+.gov-footer a{color:#a8c4f0}
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a3a6e;color:#fff;padding:12px 28px;border-radius:30px;font-size:.9rem;box-shadow:0 4px 20px rgba(0,0,0,.25);transition:transform .35s;z-index:9999}
+.toast.show{transform:translateX(-50%) translateY(0)}
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-ov.show{display:flex}
+.modal-box{background:#fff;border-radius:14px;padding:30px;max-width:460px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.25);position:relative}
+.modal-box h3{font-size:1.15rem;color:var(--navy);font-weight:700;margin-bottom:10px}
+.modal-box p{color:var(--muted);font-size:.88rem;line-height:1.6;margin-bottom:14px}
+.mc{position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.5rem;color:var(--muted);cursor:pointer}
+.mbtns{display:flex;gap:10px}
+.mode-sel{border:2px solid var(--navy);border-radius:6px;padding:5px 12px;font-size:.83rem;color:var(--navy);background:#fff;cursor:pointer}
+@media(max-width:860px){.login-wrap,.atm-layout,.upload-grid,.sum-layout{flex-direction:column;grid-template-columns:1fr}.login-card{max-width:100%;flex:none}.hdr-right{display:none}}
+</style>
+</head>
+<body>
+<div class="gov-topbar">
+  <span>Government of India | भारत सरकार | Ministry of Health &amp; Family Welfare</span>
+  <span id="dt-bar"></span>
+</div>
+<!-- HEADER (changes for login vs dashboard) -->
+<header class="gov-header">
+  <div class="header-inner">
+    <div class="hdr-left">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Ashoka Emblem" class="emblem"/>
+      <div class="ht">
+        <h1>Swasthya Kiosk | स्वास्थ्य कियोस्क</h1>
+        <p>AI-Powered Patient History System | ABDM | AYUSH | DPDP 2023 Compliant</p>
+        <p class="sub">Smart India Hackathon 2024 | National Health Authority</p>
+      </div>
+    </div>
+    <div id="hdr-login-badges" class="hdr-right">
+      <span class="badge">&#128274; DPDP 2023 Compliant</span>
+      <span class="badge">&#128203; ABDM Registered</span>
+      <span class="badge">&#127973; NHA Approved</span>
+    </div>
+    <div id="hdr-dash-info" class="hdr-right hidden">
+      <div class="pat-badge"><strong id="pat-name">Patient: Demo User</strong><span id="pat-abha">ABHA: 12-3456-7890-1234</span></div>
+      <button class="logout-btn" onclick="doLogout()">&#128275; Logout</button>
+    </div>
+  </div>
+</header>
+
+<!-- LANGUAGE BAR -->
+<div class="lang-bar">
+  <span class="lang-label">&#127760; Language / भाषा:</span>
+  <div class="lang-btns">
+    <button class="lang-btn active" onclick="setLang('en',this)">English</button>
+    <button class="lang-btn" onclick="setLang('hi',this)">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368;</button>
+    <button class="lang-btn" onclick="setLang('ta',this)">&#2980;&#2990;&#3007;&#2996;&#3021;</button>
+    <button class="lang-btn" onclick="setLang('te',this)">&#3108;&#3142;&#3122;&#3137;&#3095;&#3137;</button>
+    <button class="lang-btn" onclick="setLang('bn',this)">&#2476;&#2494;&#2434;&#2482;&#2494;</button>
+    <button class="lang-btn" onclick="setLang('mr',this)">&#2350;&#2352;&#2366;&#2336;&#2368;</button>
+    <button class="lang-btn" onclick="setLang('gu',this)">&#2711;&#2753;&#2716;&#2736;&#2750;&#2724;&#2752;</button>
+  </div>
+  <div class="vbar">
+    <button class="vbtn" id="global-mic" onclick="toggleGlobalMic()">&#127908; Speak</button>
+    <button class="vbtn" onclick="speakScreen()">&#128266; Repeat</button>
+  </div>
+</div>
+
+<!-- BREADCRUMB (only shown on dashboard) -->
+<div class="breadcrumb hidden" id="breadcrumb">
+  <div class="bc-inner">
+    <div class="bc-step done" id="bc0">&#10004; 1. Login</div>
+    <span style="color:#aaa">&#8250;</span>
+    <div class="bc-step" id="bc1">2. Consent</div>
+    <span style="color:#aaa">&#8250;</span>
+    <div class="bc-step" id="bc2">3. Symptoms</div>
+    <span style="color:#aaa">&#8250;</span>
+    <div class="bc-step" id="bc3">4. Documents</div>
+    <span style="color:#aaa">&#8250;</span>
+    <div class="bc-step" id="bc4">5. Summary</div>
+  </div>
+</div>
+
+<!-- ====================== LOGIN PAGE ====================== -->
+<div id="page-login" class="page">
+  <div class="main">
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="card-hdr">
+          <div class="card-icon">&#127973;</div>
+          <h2 id="l-title">Patient Login</h2>
+          <p id="l-sub">Enter your ABHA ID to get started</p>
+        </div>
+        <!-- STEP ABHA -->
+        <div id="step-abha" class="step-box">
+          <div class="fg">
+            <label id="l-abha-lbl">ABHA ID / Aadhaar Number</label>
+            <div class="inp-row">
+              <input type="text" id="abha-inp" class="big-inp" placeholder="12-3456-7890-1234" maxlength="19" oninput="fmtABHA(this)"/>
+              <button class="mic-sm" id="mic-abha" onclick="startMicInput('abha-inp','mic-abha')" title="Speak ABHA ID">&#127908;</button>
+            </div>
+            <p class="hint" id="l-abha-hint">&#128204; 14-digit ABHA Health ID issued by National Health Authority</p>
+          </div>
+          <div class="btn-row">
+            <button class="btn-p" onclick="sendOTP()"><span id="l-btn-otp">Get OTP &#8594;</span></button>
+          </div>
+          <div class="divider"><span id="l-or">&#8212; OR &#8212;</span></div>
+          <button class="btn-s" onclick="guestLogin()"><span id="l-btn-guest">&#128694; Continue Without ABHA (Guest)</span></button>
+        </div>
+        <!-- STEP OTP -->
+        <div id="step-otp" class="step-box hidden">
+          <div class="fg">
+            <label id="l-otp-lbl">Enter 6-digit OTP sent to registered mobile</label>
+            <div class="otp-row">
+              <input type="tel" inputmode="numeric" maxlength="1" class="otp-in" oninput="otpFwd(this,0)" onkeydown="otpBk(event,this,-1)"/>
+              <input type="tel" inputmode="numeric" maxlength="1" class="otp-in" oninput="otpFwd(this,1)" onkeydown="otpBk(event,this,0)"/>
+              <input type="tel" inputmode="numeric" maxlength="1" class="otp-in" oninput="otpFwd(this,2)" onkeydown="otpBk(event,this,1)"/>
+              <input type="tel" inputmode="numeric" maxlength="1" class="otp-in" oninput="otpFwd(this,3)" onkeydown="otpBk(event,this,2)"/>
+              <input type="tel" inputmode="numeric" maxlength="1" class="otp-in" oninput="otpFwd(this,4)" onkeydown="otpBk(event,this,3)"/>
+              <input type="tel" inputmode="numeric" maxlength="1" class="otp-in" oninput="otpFwd(this,5)" onkeydown="otpBk(event,this,4)"/>
+            </div>
+            <p class="hint resend">&#8987; Resend in <span id="cdn">30</span>s &nbsp;|&nbsp;
+              <a href="#" id="resend-lnk" style="pointer-events:none;color:#999" onclick="resendOTP();return false">Resend OTP</a>
+            </p>
+          </div>
+          <div class="btn-row">
+            <button class="btn-s" style="flex:0 0 auto;padding:12px 18px" onclick="backToABHA()">&#8592; Back</button>
+            <button class="btn-p" onclick="verifyOTP()"><span id="l-btn-verify">&#10004; Verify &amp; Login</span></button>
+          </div>
+        </div>
+        <div class="demo-note">&#9889; Demo: Any 14-digit ABHA | OTP: <strong>1 2 3 4 5 6</strong></div>
+      </div>
+      <!-- INFO PANEL -->
+      <div class="info-panel">
+        <h3 id="l-panel-title">How This Kiosk Helps You</h3>
+        <div class="info-steps">
+          <div class="info-step"><div class="snum">1</div><div><strong id="ls1t">Verify Identity</strong><p id="ls1d">Login securely with ABHA ID or Aadhaar</p></div></div>
+          <div class="info-step"><div class="snum">2</div><div><strong id="ls2t">Describe Symptoms</strong><p id="ls2d">Speak or tap to answer health questions in your language</p></div></div>
+          <div class="info-step"><div class="snum">3</div><div><strong id="ls3t">Upload Records</strong><p id="ls3d">Scan prescriptions and lab reports for AI extraction</p></div></div>
+          <div class="info-step"><div class="snum">4</div><div><strong id="ls4t">Doctor Summary</strong><p id="ls4d">AI prepares your history; doctor reviews before you meet</p></div></div>
+        </div>
+        <div class="helpline">
+          <p>&#129138; Emergency: <strong>112</strong></p>
+          <p>&#128222; ABDM Support: <strong>1800-11-4477</strong> (Toll Free)</p>
+          <p>&#129657; Ayushman Bharat: <strong>14555</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ====================== DASHBOARD PAGE ====================== -->
+<div id="page-dash" class="page hidden">
+  <div class="main">
+
+    <!-- SCREEN: CONSENT -->
+    <div id="scr-consent" class="screen">
+      <div class="scr-hdr">
+        <div class="sico">&#128203;</div>
+        <div class="stitle"><h2 id="d-consent-h">Consent &amp; Privacy Agreement</h2><p id="d-consent-p">Please read and agree before we collect your health information</p></div>
+      </div>
+      <div class="consent-card">
+        <button class="audio-btn" onclick="speakConsent()">&#128266; Listen to Consent Text</button>
+        <div class="consent-txt">
+          <h4>Patient Consent for Health Data Collection</h4>
+          <p>Under the Digital Personal Data Protection (DPDP) Act 2023 and the NDHM guidelines, you have full control over your health data.</p><br/>
+          <p><strong>What we collect:</strong> Your symptoms, medical history, uploaded documents, and basic demographic information linked to your ABHA ID.</p><br/>
+          <p><strong>How it is used:</strong> Processed by AI to generate a structured medical history summary. Shared ONLY with the attending doctor at this facility during your visit today.</p><br/>
+          <p><strong>Data security:</strong> All data encrypted (AES-256). Session data permanently deleted after your doctor confirms your summary.</p><br/>
+          <p><strong>Your rights:</strong> You can revoke consent at any time. The AI summary is a DRAFT only. Your doctor verifies before use. It is NOT an autonomous diagnosis.</p><br/>
+          <p><strong>Grievance:</strong> Contact facility health officer or call 1800-11-4477 (Toll Free).</p>
+        </div>
+        <label class="consent-chk"><input type="checkbox" id="consent-cb" onchange="chkConsent()"/><span id="d-consent-chk">I have read and I agree to share my health data as described above</span></label>
+        <div class="btn-row">
+          <button class="btn-s" onclick="denyConsent()"><span id="d-btn-deny">&#10007; I Do Not Agree</span></button>
+          <button class="btn-p" id="consent-ok" disabled style="opacity:.5" onclick="goSymptoms()"><span id="d-btn-agree">I Agree &amp; Proceed &#8594;</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN: SYMPTOMS -->
+    <div id="scr-symptoms" class="screen hidden">
+      <div class="scr-hdr">
+        <div class="sico">&#129657;</div>
+        <div class="stitle"><h2 id="d-symp-h">Tell Us About Your Health</h2><p id="d-symp-p">Answer each question by speaking or tapping an option</p></div>
+        <div style="margin-left:auto">
+          <select id="mode-sel" class="mode-sel" onchange="switchMode()">
+            <option value="allo">&#127973; Allopathic Mode</option>
+            <option value="ayush">&#127807; AYUSH / Dashavidha Mode</option>
+          </select>
+        </div>
+      </div>
+      <div class="atm-layout">
+        <div class="card card-t">
+          <div class="q-num" id="qnum">1</div>
+          <div class="q-txt" id="qtxt">Loading question...</div>
+          <div class="q-sub" id="qsub">Speak or tap an answer</div>
+          <div class="v-area">
+            <span class="vtxt" id="vtxt">Your spoken answer will appear here...</span>
+            <button class="mic-big" id="main-mic" onclick="toggleMic()">&#127908;</button>
+          </div>
+          <div class="mcq-grid" id="mcq-grid"></div>
+          <div class="nav-btns">
+            <button class="btn-s" id="prev-btn" onclick="prevQ()" disabled style="padding:12px 18px">&#8592; Prev</button>
+            <button class="btn-skip" onclick="skipQ()">Skip</button>
+            <button class="btn-p" onclick="nextQ()"><span id="btn-next-lbl">Next &#8594;</span></button>
+          </div>
+        </div>
+        <div class="card card-t">
+          <h3 style="font-size:.97rem;color:var(--navy);font-weight:700;border-bottom:2px solid var(--saffron);padding-bottom:8px;margin-bottom:12px" id="d-prog-h">Your Answers So Far</h3>
+          <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+          <div class="prog-lbl"><span id="prog-lbl">0 of 10 answered</span><span id="prog-pct">0%</span></div>
+          <div class="ans-list" id="ans-list"></div>
+          <div class="red-flag" id="red-flag">
+            <h4>&#9888; Emergency Alert Detected</h4>
+            <p id="rf-msg">Possible emergency. Medical staff has been notified. Please stay calm.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN: DOCUMENTS -->
+    <div id="scr-documents" class="screen hidden">
+      <div class="scr-hdr">
+        <div class="sico">&#128196;</div>
+        <div class="stitle"><h2 id="d-doc-h">Upload Your Medical Documents</h2><p id="d-doc-p">Upload prescriptions and lab reports. AI will extract information automatically.</p></div>
+      </div>
+      <div class="upload-grid">
+        <div class="uzone">
+          <div style="font-size:2.8rem">&#128138;</div>
+          <h3>Prescription / Medicine Slip</h3>
+          <p>Photo or file of your prescription</p>
+          <button class="ubtn" onclick="document.getElementById('rx-f').click()">&#128247; Camera / Upload</button>
+          <input type="file" id="rx-f" class="fhid" accept="image/*,.pdf" multiple onchange="handleUpload(this,'rx-list','rx-ocr')"/>
+          <div class="ufiles" id="rx-list"></div>
+          <div class="ocr-r" id="rx-ocr"></div>
+        </div>
+        <div class="uzone">
+          <div style="font-size:2.8rem">&#129514;</div>
+          <h3>Lab Report / Investigation</h3>
+          <p>Blood test, X-ray, or any lab report</p>
+          <button class="ubtn" onclick="document.getElementById('lab-f').click()">&#128247; Camera / Upload</button>
+          <input type="file" id="lab-f" class="fhid" accept="image/*,.pdf" multiple onchange="handleUpload(this,'lab-list','lab-ocr')"/>
+          <div class="ufiles" id="lab-list"></div>
+          <div class="ocr-r" id="lab-ocr"></div>
+        </div>
+        <div class="uzone">
+          <div style="font-size:2.8rem">&#128203;</div>
+          <h3>Previous Discharge Summary</h3>
+          <p>Hospital discharge or OPD summary</p>
+          <button class="ubtn" onclick="document.getElementById('dc-f').click()">&#128247; Camera / Upload</button>
+          <input type="file" id="dc-f" class="fhid" accept="image/*,.pdf" multiple onchange="handleUpload(this,'dc-list','dc-ocr')"/>
+          <div class="ufiles" id="dc-list"></div>
+          <div class="ocr-r" id="dc-ocr"></div>
+        </div>
+        <div class="uzone" style="border:2px dashed #c8d6e5;box-shadow:none;background:#fafafa">
+          <div style="font-size:2rem;color:#aaa">&#10145;</div>
+          <h3 style="color:#555;font-size:.95rem">No Documents to Upload?</h3>
+          <p>That is okay. You can continue without uploading.</p>
+          <button class="btn-p" style="width:100%;margin-top:8px" onclick="goSummary()">Continue to Summary &#8594;</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:20px">
+        <button class="btn-p" style="min-width:240px" onclick="goSummary()">Proceed to Summary &#8594;</button>
+      </div>
+    </div>
+
+    <!-- SCREEN: SUMMARY -->
+    <div id="scr-summary" class="screen hidden">
+      <div class="scr-hdr">
+        <div class="sico">&#128202;</div>
+        <div class="stitle"><h2 id="d-sum-h">Your Medical History Summary</h2><p id="d-sum-p">AI-generated draft &#8211; Doctor will review and confirm before use</p></div>
+        <button class="vbtn" style="margin-left:auto" onclick="readSummary()">&#128266; Read Aloud</button>
+      </div>
+      <div class="sum-layout">
+        <div class="sum-card">
+          <h3>&#128203; Clinical History Summary <span style="font-size:.78rem;font-weight:400;color:#138808">[AI Draft &#8211; Editable by Doctor]</span></h3>
+          <div class="ss"><h4>Chief Complaint</h4>
+            <div class="sf"><span class="fl">Main Problem:</span><input class="edit" id="s-cc" value=""/></div>
+          </div>
+          <div class="ss"><h4>History of Present Illness (SOCRATES)</h4>
+            <div class="sf"><span class="fl">Site:</span><input class="edit" id="s-site" value=""/></div>
+            <div class="sf"><span class="fl">Onset:</span><input class="edit" id="s-onset" value=""/></div>
+            <div class="sf"><span class="fl">Character:</span><input class="edit" id="s-char" value="As reported by patient"/></div>
+            <div class="sf"><span class="fl">Radiation:</span><input class="edit" id="s-rad" value=""/></div>
+            <div class="sf"><span class="fl">Associated:</span><input class="edit" id="s-assoc" value=""/></div>
+            <div class="sf"><span class="fl">Exacerbating:</span><input class="edit" id="s-exac" value=""/></div>
+            <div class="sf"><span class="fl">Severity:</span><input class="edit" id="s-sev" value=""/></div>
+          </div>
+          <div class="ss"><h4>Past Medical History</h4>
+            <div class="sf"><span class="fl">Conditions:</span><input class="edit" id="s-pmh" value=""/></div>
+            <div class="sf"><span class="fl">Surgeries:</span><input class="edit" id="s-surg" value="No known surgeries"/></div>
+          </div>
+          <div class="ss"><h4>Drug &amp; Allergy History</h4>
+            <div class="sf"><span class="fl">Current Meds:</span><input class="edit" id="s-meds" value=""/></div>
+            <div class="sf"><span class="fl">Allergies:</span><input class="edit" id="s-allergy" value=""/></div>
+          </div>
+          <div class="ss"><h4>Family History</h4>
+            <div class="sf"><span class="fl">Family:</span><input class="edit" id="s-fam" value=""/></div>
+          </div>
+          <div class="ss"><h4>Review of Systems</h4>
+            <div class="sf"><span class="fl">Systems:</span><input class="edit" id="s-ros" value="No other system complaints reported"/></div>
+          </div>
+          <div class="demo-note">&#9888; AI-generated DRAFT for physician review only. Not a diagnosis. Doctor verifies before use.</div>
+        </div>
+        <div class="sidebar">
+          <div class="ac"><h4>&#127973; Send to Doctor</h4>
+            <button class="abtn gr" onclick="sendDoctor()">&#10004; Send Summary to Doctor</button>
+            <button class="abtn bl" onclick="readSummary()">&#128266; Read Summary Aloud</button>
+            <button class="abtn or" onclick="window.print()">&#128424; Print Summary</button>
+          </div>
+          <div class="ac"><h4>&#128241; ABDM / FHIR Export</h4>
+            <button class="abtn bl" onclick="genFHIR()">&#128230; Generate FHIR Bundle</button>
+            <div class="fhir-ok" id="fhir-ok">&#10003; FHIR Bundle Ready (HL7 FHIR R4)</div>
+          </div>
+          <div class="ac"><h4>&#128196; Uploaded Documents</h4>
+            <div id="sidebar-docs" style="font-size:.82rem;color:var(--muted)">No documents uploaded yet</div>
+          </div>
+          <div class="ac"><h4>&#128274; Session Security</h4>
+            <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">Data encrypted AES-256. Session auto-deletes after doctor confirmation. DPDP 2023 compliant.</p>
+            <button class="abtn rd" onclick="delSession()">&#128465; Delete My Data Now</button>
+          </div>
+          <div class="ac"><h4>&#129138; Emergency</h4>
+            <p style="font-size:.78rem;color:var(--muted);margin-bottom:8px">If you feel unwell, press immediately</p>
+            <button class="abtn em" onclick="triggerEmergency()">&#128680; CALL FOR HELP NOW</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="gov-footer">
+  <p>&#169; 2024 Ministry of Health &amp; Family Welfare, Government of India &nbsp;|&nbsp;
+    <a href="#">Privacy Policy</a> &nbsp;|&nbsp;<a href="#">Grievance</a> &nbsp;|&nbsp;
+    ABDM Compliant &nbsp;|&nbsp; DPDP Act 2023 &nbsp;|&nbsp; Session Auto-Delete Enabled</p>
+</footer>
+<div class="toast" id="toast"></div>
+<div class="modal-ov" id="modal">
+  <div class="modal-box">
+    <button class="mc" onclick="closeModal()">&#215;</button>
+    <h3 id="modal-t">Confirm</h3><p id="modal-b">Are you sure?</p>
+    <div class="mbtns"><button class="btn-s" onclick="closeModal()">Cancel</button><button class="btn-p" id="modal-ok">OK</button></div>
+  </div>
+</div>
+<script>
+// ============ TRANSLATIONS ============
+var T = {
+en:{lTitle:"Patient Login",lSub:"Enter your ABHA ID to get started",lAbha:"ABHA ID / Aadhaar Number",lHint:"14-digit ABHA Health ID by National Health Authority",lBtnOtp:"Get OTP",lOr:"OR",lGuest:"Continue Without ABHA (Guest)",lOtpLbl:"Enter 6-digit OTP sent to registered mobile",lVerify:"Verify & Login",lPanel:"How This Kiosk Helps You",ls1t:"Verify Identity",ls1d:"Login securely with ABHA or Aadhaar",ls2t:"Describe Symptoms",ls2d:"Speak or tap health questions in your language",ls3t:"Upload Records",ls3d:"Scan prescriptions and lab reports",ls4t:"Doctor Summary",ls4d:"AI prepares history; doctor reviews before you meet",dConsent:"Consent & Privacy Agreement",dConsentP:"Please read and agree before we collect your health information",dConsentChk:"I have read and I agree to share my health data",dBtnDeny:"I Do Not Agree",dBtnAgree:"I Agree & Proceed",dSympH:"Tell Us About Your Health",dSympP:"Answer each question by speaking or tapping an option",dDocH:"Upload Your Medical Documents",dDocP:"Upload prescriptions and lab reports. AI will extract information automatically.",dSumH:"Your Medical History Summary",dSumP:"AI-generated draft. Doctor will review before use.",dProgH:"Your Answers So Far",voice:"Welcome to Swasthya Kiosk. Please enter your ABHA ID or Aadhaar number to login."},
+hi:{lTitle:"रोगी लॉगिन",lSub:"शुरू करने के लिए ABHA ID दर्ज करें",lAbha:"ABHA ID / आधार नंबर",lHint:"14 अंकीय ABHA स्वास्थ्य ID",lBtnOtp:"OTP प्राप्त करें",lOr:"या",lGuest:"ABHA के बिना जारी रखें",lOtpLbl:"पंजीकृत मोबाइल पर भेजा गया 6 अंकीय OTP दर्ज करें",lVerify:"सत्यापित करें और लॉगिन करें",lPanel:"यह कियोस्क कैसे मदद करता है",ls1t:"पहचान सत्यापित करें",ls1d:"ABHA ID या आधार से लॉगिन",ls2t:"लक्षण बताएं",ls2d:"अपनी भाषा में बोलकर या टैप करके उत्तर दें",ls3t:"रिकॉर्ड अपलोड करें",ls3d:"नुस्खे और लैब रिपोर्ट स्कैन करें",ls4t:"डॉक्टर सारांश",ls4d:"AI इतिहास तैयार करता है",dConsent:"सहमति और गोपनीयता समझौता",dConsentP:"जानकारी एकत्र करने से पहले पढ़ें और सहमत हों",dConsentChk:"मैंने पढ़ा है और सहमत हूं",dBtnDeny:"मैं सहमत नहीं हूं",dBtnAgree:"मैं सहमत हूं और आगे बढ़ें",dSympH:"अपने स्वास्थ्य के बारे में बताएं",dSympP:"बोलकर या टैप करके उत्तर दें",dDocH:"चिकित्सा दस्तावेज़ अपलोड करें",dDocP:"नुस्खे और लैब रिपोर्ट अपलोड करें",dSumH:"आपका चिकित्सा इतिहास सारांश",dSumP:"AI मसौदा - डॉक्टर समीक्षा करेंगे",dProgH:"अब तक के उत्तर",voice:"स्वास्थ्य कियोस्क में स्वागत है। ABHA ID दर्ज करें।"},
+ta:{lTitle:"நோயாளி உள்நுழைவு",lSub:"ABHA ID ஐ உள்ளிடவும்",lAbha:"ABHA ID / ஆதார் எண்",lHint:"14 இலக்க ABHA ID",lBtnOtp:"OTP பெறுக",lOr:"அல்லது",lGuest:"ABHA இல்லாமல் தொடர்க",lOtpLbl:"OTP ஐ உள்ளிடவும்",lVerify:"சரிபார்க்கவும்",lPanel:"கியோஸ்க் எவ்வாறு உதவுகிறது",ls1t:"அடையாளம் சரிபார்",ls1d:"ABHA ID அல்லது ஆதாரில் உள்நுழைக",ls2t:"அறிகுறிகள்",ls2d:"உங்கள் மொழியில் பேசுங்கள்",ls3t:"ஆவணங்கள்",ls3d:"மருந்துச் சீட்டுகளை பதிவேற்றுங்கள்",ls4t:"மருத்துவர் சுருக்கம்",ls4d:"AI வரலாற்றை தயார் செய்கிறது",dConsent:"ஒப்புதல் ஒப்பந்தம்",dConsentP:"தொடர்வதற்கு முன் படிக்கவும்",dConsentChk:"நான் படித்தேன் மற்றும் ஒப்புக்கொள்கிறேன்",dBtnDeny:"ஒப்புக்கொள்ளவில்லை",dBtnAgree:"ஒப்புக்கொண்டு தொடர்க",dSympH:"உங்கள் உடல்நலம்",dSympP:"பேசுங்கள் அல்லது தட்டவும்",dDocH:"மருத்துவ ஆவணங்கள்",dDocP:"மருந்துச் சீட்டுகள் பதிவேற்றவும்",dSumH:"மருத்துவ வரலாறு",dSumP:"AI வரைவு",dProgH:"இதுவரை பதில்கள்",voice:"சுவாஸ்த்யா கியோஸ்க்கிற்கு வரவேற்கிறோம்."},
+te:{lTitle:"రోగి లాగిన్",lSub:"ABHA ID నమోదు చేయండి",lAbha:"ABHA ID / ఆధార్",lHint:"14 అంకెల ABHA ID",lBtnOtp:"OTP పొందండి",lOr:"లేదా",lGuest:"ABHA లేకుండా కొనసాగండి",lOtpLbl:"OTP నమోదు చేయండి",lVerify:"ధృవీకరించండి",lPanel:"కియోస్క్ ఎలా సహాయపడుతుంది",ls1t:"గుర్తింపు ధృవీకరించండి",ls1d:"ABHA ID లేదా ఆధార్‌తో లాగిన్",ls2t:"లక్షణాలు",ls2d:"మీ భాషలో మాట్లాడండి",ls3t:"రికార్డులు",ls3d:"ప్రిస్క్రిప్షన్లు అప్లోడ్ చేయండి",ls4t:"డాక్టర్ సారాంశం",ls4d:"AI చరిత్రను సిద్ధం చేస్తుంది",dConsent:"సమ్మతి ఒప్పందం",dConsentP:"ముందుకు వెళ్ళే ముందు చదవండి",dConsentChk:"నేను చదివాను మరియు అంగీకరిస్తున్నాను",dBtnDeny:"అంగీకరించడం లేదు",dBtnAgree:"అంగీకరించి ముందుకు సాగండి",dSympH:"మీ ఆరోగ్యం గురించి చెప్పండి",dSympP:"మాట్లాడండి లేదా నొక్కండి",dDocH:"వైద్య పత్రాలు",dDocP:"ప్రిస్క్రిప్షన్లు అప్లోడ్ చేయండి",dSumH:"వైద్య సారాంశం",dSumP:"AI చే రూపొందించిన",dProgH:"ఇప్పటి వరకు సమాధానాలు",voice:"స్వాస్థ్య కియోస్క్‌కు స్వాగతం."},
+bn:{lTitle:"রোগী লগইন",lSub:"ABHA ID লিখুন",lAbha:"ABHA ID / আধার",lHint:"14 সংখ্যার ABHA ID",lBtnOtp:"OTP পান",lOr:"অথবা",lGuest:"ABHA ছাড়া চালিয়ে যান",lOtpLbl:"OTP লিখুন",lVerify:"যাচাই করুন",lPanel:"কিওস্ক কীভাবে সাহায্য করে",ls1t:"পরিচয় যাচাই",ls1d:"ABHA ID বা আধার দিয়ে লগইন",ls2t:"লক্ষণ",ls2d:"আপনার ভাষায় কথা বলুন",ls3t:"রেকর্ড",ls3d:"প্রেসক্রিপশন আপলোড করুন",ls4t:"ডাক্তারের সারাংশ",ls4d:"AI ইতিহাস তৈরি করে",dConsent:"সম্মতি চুক্তি",dConsentP:"শুরু করার আগে পড়ুন",dConsentChk:"আমি পড়েছি এবং সম্মত",dBtnDeny:"সম্মত নই",dBtnAgree:"সম্মত হয়ে এগিয়ে যান",dSympH:"আপনার স্বাস্থ্য",dSympP:"কথা বলুন বা ট্যাপ করুন",dDocH:"চিকিৎসা নথি",dDocP:"প্রেসক্রিপশন আপলোড করুন",dSumH:"চিকিৎসা সারাংশ",dSumP:"AI খসড়া",dProgH:"এ পর্যন্ত উত্তর",voice:"স্বাস্থ্য কিওস্কে স্বাগতম।"},
+mr:{lTitle:"रुग्ण लॉगिन",lSub:"ABHA ID प्रविष्ट करा",lAbha:"ABHA ID / आधार",lHint:"14 अंकी ABHA ID",lBtnOtp:"OTP मिळवा",lOr:"किंवा",lGuest:"ABHA शिवाय पुढे जा",lOtpLbl:"OTP प्रविष्ट करा",lVerify:"सत्यापित करा",lPanel:"हा कियोस्क कसा मदत करतो",ls1t:"ओळख सत्यापित करा",ls1d:"ABHA ID किंवा आधारने लॉगिन",ls2t:"लक्षणे सांगा",ls2d:"तुमच्या भाषेत बोला",ls3t:"नोंदी अपलोड करा",ls3d:"प्रिस्क्रिप्शन स्कॅन करा",ls4t:"डॉक्टरांसाठी सारांश",ls4d:"AI इतिहास तयार करते",dConsent:"संमती करार",dConsentP:"सुरू करण्यापूर्वी वाचा",dConsentChk:"मी वाचले आहे आणि सहमत आहे",dBtnDeny:"मी सहमत नाही",dBtnAgree:"मी सहमत आहे आणि पुढे जा",dSympH:"तुमच्या आरोग्याबद्दल सांगा",dSympP:"बोला किंवा टॅप करा",dDocH:"वैद्यकीय दस्तऐवज",dDocP:"प्रिस्क्रिप्शन अपलोड करा",dSumH:"वैद्यकीय इतिहास सारांश",dSumP:"AI मसुदा",dProgH:"आतापर्यंतची उत्तरे",voice:"स्वास्थ्य कियोस्कमध्ये स्वागत आहे."},
+gu:{lTitle:"દર્દી લૉગિન",lSub:"ABHA ID દાખલ કરો",lAbha:"ABHA ID / આધાર",lHint:"14 અંકની ABHA ID",lBtnOtp:"OTP મેળવો",lOr:"અથવા",lGuest:"ABHA વિના આગળ વધો",lOtpLbl:"OTP દાખલ કરો",lVerify:"ચકાસો",lPanel:"આ કિઓસ્ક કેવી રીતે મદદ કરે છે",ls1t:"ઓળખ ચકાસો",ls1d:"ABHA ID સાથે લૉગિન",ls2t:"લક્ષણો",ls2d:"તમારી ભાષામાં બોલો",ls3t:"રેકોર્ડ",ls3d:"પ્રિસ્ક્રિપ્શન અપલોડ કરો",ls4t:"ડૉક્ટર સારાંશ",ls4d:"AI ઇતિહાસ તૈયાર કરે છે",dConsent:"સંમતિ કરાર",dConsentP:"શરૂ કરતા પહેલા વાંચો",dConsentChk:"મેં વાંચ્યું છે અને સંમત છું",dBtnDeny:"સંમત નથી",dBtnAgree:"સંમત છું અને આગળ વધો",dSympH:"તમારી તંદુરસ્તી",dSympP:"બોલો અથવા ટૅપ કરો",dDocH:"તબીબી દસ્તાવેજો",dDocP:"પ્રિસ્ક્રિપ્શન અપલોડ કરો",dSumH:"તબીબી ઇતિહાસ સારાંશ",dSumP:"AI ડ્રાફ્ટ",dProgH:"અત્યાર સુધીના જવાબો",voice:"સ્વાસ્થ્ય કિઓસ્કમાં આપનું સ્વાગત છે."}
+};
+var LVM = {en:'en-IN',hi:'hi-IN',ta:'ta-IN',te:'te-IN',bn:'bn-IN',mr:'mr-IN',gu:'gu-IN'};
+var lang = 'en';
+
+function setLang(l, btn) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  var t = T[l] || T.en;
+  var m = {
+    'l-title':'lTitle','l-sub':'lSub','l-abha-lbl':'lAbha','l-abha-hint':'lHint',
+    'l-btn-otp':'lBtnOtp','l-or':'lOr','l-btn-guest':'lGuest',
+    'l-otp-lbl':'lOtpLbl','l-btn-verify':'lVerify','l-panel-title':'lPanel',
+    'ls1t':'ls1t','ls1d':'ls1d','ls2t':'ls2t','ls2d':'ls2d',
+    'ls3t':'ls3t','ls3d':'ls3d','ls4t':'ls4t','ls4d':'ls4d',
+    'd-consent-h':'dConsent','d-consent-p':'dConsentP','d-consent-chk':'dConsentChk',
+    'd-btn-deny':'dBtnDeny','d-btn-agree':'dBtnAgree',
+    'd-symp-h':'dSympH','d-symp-p':'dSympP',
+    'd-doc-h':'dDocH','d-doc-p':'dDocP',
+    'd-sum-h':'dSumH','d-sum-p':'dSumP','d-prog-h':'dProgH'
+  };
+  for(var id in m){
+    var el=document.getElementById(id);
+    var key=m[id];
+    if(el && t[key]) el.textContent = t[key];
+  }
+  speak(t.voice);
+}
+
+function speak(txt) {
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  var u = new SpeechSynthesisUtterance(txt);
+  u.lang = LVM[lang] || 'en-IN';
+  u.rate = 0.9;
+  speechSynthesis.speak(u);
+}
+
+function speakScreen() {
+  var scrs = {
+    'scr-consent':'Please read the consent form and tick the checkbox to proceed.',
+    'scr-symptoms':'Please answer the health question. You can speak or tap an option.',
+    'scr-documents':'You can upload your prescriptions or lab reports, or skip and continue.',
+    'scr-summary':'Your medical history summary is ready. Please review and send to your doctor.'
+  };
+  for(var id in scrs){
+    var el=document.getElementById(id);
+    if(el && !el.classList.contains('hidden')){speak(scrs[id]);break;}
+  }
+}
+
+// ============ CLOCK ============
+function tick(){var el=document.getElementById('dt-bar');if(el)el.textContent=new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});}
+setInterval(tick,1000);tick();
+
+// ============ LOGIN ============
+var cdTimer;
+function fmtABHA(el){
+  var v=el.value.replace(/\D/g,''),f='';
+  if(v.length>0)f=v.substr(0,2);
+  if(v.length>2)f+='-'+v.substr(2,4);
+  if(v.length>6)f+='-'+v.substr(6,4);
+  if(v.length>10)f+='-'+v.substr(10,4);
+  el.value=f;
+}
+function sendOTP(){
+  var v=document.getElementById('abha-inp').value.replace(/\D/g,'');
+  if(v.length<14){toast('Please enter a valid 14-digit ABHA ID');return;}
+  document.getElementById('step-abha').classList.add('hidden');
+  document.getElementById('step-otp').classList.remove('hidden');
+  toast('OTP sent to your registered mobile number');
+  speak('OTP has been sent. Please enter it.');
+  runCd();
+  document.querySelector('.otp-in').focus();
+}
+function runCd(){
+  var s=30;document.getElementById('cdn').textContent=s;
+  document.getElementById('resend-lnk').style.pointerEvents='none';
+  document.getElementById('resend-lnk').style.color='#999';
+  clearInterval(cdTimer);
+  cdTimer=setInterval(function(){
+    s--;document.getElementById('cdn').textContent=s;
+    if(s<=0){clearInterval(cdTimer);
+      document.getElementById('resend-lnk').style.pointerEvents='auto';
+      document.getElementById('resend-lnk').style.color='#00308F';}
+  },1000);
+}
+function resendOTP(){runCd();toast('OTP resent!');}
+function backToABHA(){
+  clearInterval(cdTimer);
+  document.getElementById('step-otp').classList.add('hidden');
+  document.getElementById('step-abha').classList.remove('hidden');
+  document.querySelectorAll('.otp-in').forEach(function(i){i.value='';});
+}
+function otpFwd(el,idx){
+  var v=el.value;
+  if(v.length>1)el.value=v.charAt(v.length-1);
+  var ins=document.querySelectorAll('.otp-in');
+  if(el.value && idx<5) ins[idx+1].focus();
+}
+function otpBk(e,el,prev){
+  if(e.key==='Backspace'&&!el.value&&prev>=0)
+    document.querySelectorAll('.otp-in')[prev].focus();
+}
+function verifyOTP(){
+  var otp=Array.from(document.querySelectorAll('.otp-in')).map(function(i){return i.value;}).join('');
+  if(otp.length===6){
+    toast('Login successful! Loading dashboard...');
+    speak('Login successful. Welcome to Swasthya Kiosk.');
+    setTimeout(showDash, 1400);
+  } else {
+    toast('Please fill all 6 OTP boxes. Demo OTP: 1 2 3 4 5 6');
+    speak('Please enter all 6 digits of the OTP.');
+  }
+}
+function guestLogin(){
+  toast('Continuing as Guest...');
+  speak('Continuing as guest. Your session will not be linked to ABHA.');
+  setTimeout(showDash, 1200);
+}
+
+// ============ PAGE SWITCHING ============
+function showDash(){
+  document.getElementById('page-login').classList.add('hidden');
+  document.getElementById('page-dash').classList.remove('hidden');
+  document.getElementById('breadcrumb').classList.remove('hidden');
+  document.getElementById('hdr-login-badges').classList.add('hidden');
+  document.getElementById('hdr-dash-info').classList.remove('hidden');
+  var v=document.getElementById('abha-inp').value;
+  if(v) document.getElementById('pat-abha').textContent='ABHA: '+v;
+  showScr('consent');
+}
+function doLogout(){
+  showModal('Logout','Are you sure you want to logout?',function(){
+    speak('Logging out. Thank you.');
+    document.getElementById('page-dash').classList.add('hidden');
+    document.getElementById('page-login').classList.remove('hidden');
+    document.getElementById('breadcrumb').classList.add('hidden');
+    document.getElementById('hdr-login-badges').classList.remove('hidden');
+    document.getElementById('hdr-dash-info').classList.add('hidden');
+    document.getElementById('step-otp').classList.add('hidden');
+    document.getElementById('step-abha').classList.remove('hidden');
+    document.getElementById('abha-inp').value='';
+    document.querySelectorAll('.otp-in').forEach(function(i){i.value='';});
+    clearInterval(cdTimer);
+  });
+}
+
+// ============ SCREEN NAV ============
+var SCRS = ['consent','symptoms','documents','summary'];
+function showScr(name){
+  SCRS.forEach(function(s){
+    var el=document.getElementById('scr-'+s);
+    if(el) el.classList.add('hidden');
+  });
+  var el=document.getElementById('scr-'+name);
+  if(el) el.classList.remove('hidden');
+  var idx=SCRS.indexOf(name)+1;
+  for(var i=1;i<=4;i++){
+    var bc=document.getElementById('bc'+i);
+    if(!bc) continue;
+    bc.classList.remove('active','done');
+    if(i<idx) bc.classList.add('done');
+    else if(i===idx) bc.classList.add('active');
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ============ CONSENT ============
+function chkConsent(){
+  var cb=document.getElementById('consent-cb');
+  var btn=document.getElementById('consent-ok');
+  btn.disabled=!cb.checked;
+  btn.style.opacity=cb.checked?'1':'0.5';
+}
+function speakConsent(){
+  speak('Patient Consent. Under the DPDP Act 2023, you have full control over your health data. Your information will be shared only with the attending doctor today. All data is encrypted and deleted after your visit. The AI summary is a draft, not a diagnosis.');
+}
+function denyConsent(){
+  showModal('Consent Required','Without consent we cannot process your health information. Please speak to facility staff for help.',null);
+}
+function goSymptoms(){
+  speak('Thank you for your consent. Let us begin your health questions.');
+  cQs=alloQs; cIdx=0;
+  Object.keys(ans).forEach(function(k){delete ans[k];});
+  showScr('symptoms');
+  loadQ();
+}
+
+// ============ QUESTIONS ============
+var alloQs=[
+  {q:"What is your main health problem today?",sub:"Your chief complaint",opts:["Headache","Chest Pain","Stomach Pain","Fever","Cough","Joint Pain","Dizziness","Others"]},
+  {q:"When did this problem start?",sub:"Onset of symptoms",opts:["Today","2-3 days ago","1 week ago","1 month ago","3+ months ago","Since birth"]},
+  {q:"How severe is your pain or discomfort?",sub:"Rate from 1 to 10",opts:["1-3 Mild","4-6 Moderate","7-8 Severe","9-10 Unbearable"]},
+  {q:"Where exactly do you feel the pain or problem?",sub:"Location / site",opts:["Head / Face","Chest","Abdomen","Back","Arms or Legs","Whole body"]},
+  {q:"Does the pain spread to other parts of the body?",sub:"Radiation of pain",opts:["No, stays in one place","Spreads to chest","Spreads to arm","Spreads to back","Spreads to jaw","Spreads to leg"]},
+  {q:"Do you have any other symptoms along with the main problem?",sub:"Associated symptoms",opts:["Nausea or Vomiting","Sweating","Difficulty breathing","Dizziness","Fever","None of these"]},
+  {q:"What makes the problem better or worse?",sub:"Relieving or aggravating factors",opts:["Rest helps","Eating helps","Taking medicine helps","Lying down helps","Nothing helps"]},
+  {q:"Do you have any long-term or chronic health conditions?",sub:"Past medical history",opts:["Diabetes","Hypertension","Heart disease","Asthma","Kidney disease","None"]},
+  {q:"Are you currently taking any medicines?",sub:"Current medications",opts:["Yes, I take regular medicines","I take medicines occasionally","No medicines currently","I do not know"]},
+  {q:"Do you have any known allergies to medicines or food?",sub:"Allergy history",opts:["No known allergies","Allergy to Penicillin","Allergy to Aspirin","Food allergy","Other allergy"]}
+];
+var ayushQs=[
+  {q:"What is your Prakriti (body constitution)?",sub:"Dashavidha Pariksha - Prakriti",opts:["Vata dominant","Pitta dominant","Kapha dominant","Vata-Pitta","Pitta-Kapha","Tridoshic","Don't know"]},
+  {q:"What is your Vikriti (current imbalance)?",sub:"Current dosha state",opts:["Vata (dryness, anxiety)","Pitta (heat, inflammation)","Kapha (heaviness, congestion)","Mixed","Not sure"]},
+  {q:"How is your Sara (tissue quality)?",sub:"Skin and tissue excellence",opts:["Very soft and smooth","Rough and dry","Normal","Oily"]},
+  {q:"How is your Samhanana (body build)?",sub:"Physical constitution",opts:["Lean or thin","Medium built","Stout or heavy"]},
+  {q:"How is your Satmya (food adaptability)?",sub:"Habitual suitability",opts:["Can eat all types","Sensitive to spicy food","Sensitive to cold","Sensitive to heat"]},
+  {q:"What is your Satva (mental strength)?",sub:"Psychological constitution",opts:["Strong - handles stress well","Moderate - sometimes anxious","Weak - easily upset or fearful"]},
+  {q:"How is your Agni (digestive fire)?",sub:"Appetite and digestion",opts:["Excellent appetite","Moderate appetite","Poor appetite","Very variable"]},
+  {q:"How is your Ahara Shakti (digestive power)?",sub:"Digestive capacity",opts:["Digests any food easily","Takes time to digest","Feels heavy after meals","Frequent indigestion"]},
+  {q:"How is your Vyayama Shakti (exercise capacity)?",sub:"Physical endurance",opts:["Heavy work without fatigue","Moderate endurance","Gets tired quickly","Very little stamina"]},
+  {q:"What is your Vaya (life stage)?",sub:"Age group",opts:["Bala - Child below 16","Madhya - Adult 16 to 60","Vriddha - Elderly above 60"]}
+];
+var RF={
+  'chest pain':'Possible cardiac event detected. Medical staff has been alerted. Please stay calm.',
+  'breathless':'Respiratory distress detected. Please stay seated. Help is on the way.',
+  'sudden weakness':'Possible stroke symptoms. Do not move. Staff alerted.',
+  'slurred':'Possible stroke symptoms detected. Staff alerted immediately.',
+  'vomiting blood':'Possible gastrointestinal emergency. Medical staff alerted.',
+  '9-10 unbearable':'Severe pain reported. Medical staff has been notified.'
+};
+var cQs=alloQs, cIdx=0, ans={}, micOn=false, rec=null;
+
+function switchMode(){
+  var m=document.getElementById('mode-sel').value;
+  cQs=(m==='ayush')?ayushQs:alloQs;
+  cIdx=0;Object.keys(ans).forEach(function(k){delete ans[k];});
+  loadQ();
+}
+function loadQ(){
+  var q=cQs[cIdx];
+  document.getElementById('qnum').textContent=cIdx+1;
+  document.getElementById('qtxt').textContent=q.q;
+  document.getElementById('qsub').textContent=q.sub;
+  document.getElementById('vtxt').textContent=ans[cIdx]||'Your spoken answer will appear here...';
+  var g=document.getElementById('mcq-grid');
+  g.innerHTML='';
+  q.opts.forEach(function(o){
+    var b=document.createElement('button');
+    b.className='mcq-btn'+(ans[cIdx]===o?' sel':'');
+    b.textContent=o;
+    b.onclick=function(){pickOpt(o,b);};
+    g.appendChild(b);
+  });
+  var pb=document.getElementById('prev-btn');
+  if(pb) pb.disabled=(cIdx===0);
+  var nb=document.getElementById('btn-next-lbl');
+  if(nb) nb.textContent=(cIdx===cQs.length-1)?'Finish':'Next';
+  updProg();
+  speak('Question '+(cIdx+1)+'. '+q.q);
+}
+function pickOpt(val,btn){
+  ans[cIdx]=val;
+  document.querySelectorAll('.mcq-btn').forEach(function(b){b.classList.remove('sel');});
+  btn.classList.add('sel');
+  document.getElementById('vtxt').textContent=val;
+  updProg();
+  chkRF(val.toLowerCase());
+}
+function chkRF(txt){
+  for(var kw in RF){
+    if(txt.indexOf(kw)>=0){
+      var el=document.getElementById('red-flag');
+      document.getElementById('rf-msg').textContent=RF[kw];
+      el.classList.add('show');
+      speak('Emergency alert. '+RF[kw]);
+      return;
+    }
+  }
+}
+function updProg(){
+  var tot=cQs.length, done=Object.keys(ans).length;
+  var pct=Math.round((done/tot)*100);
+  var pf=document.getElementById('prog-fill');if(pf)pf.style.width=pct+'%';
+  var pl=document.getElementById('prog-lbl');if(pl)pl.textContent=done+' of '+tot+' answered';
+  var pp=document.getElementById('prog-pct');if(pp)pp.textContent=pct+'%';
+  var list=document.getElementById('ans-list');if(!list)return;
+  list.innerHTML='';
+  for(var i in ans){
+    var q=cQs[i];if(!q)continue;
+    var d=document.createElement('div');
+    d.className='ans-item';
+    d.innerHTML='<div class="ql">Q'+(+i+1)+': '+q.q.substr(0,42)+'...</div><div class="av">'+ans[i]+'</div>';
+    list.appendChild(d);
+  }
+}
+function nextQ(){
+  if(!ans[cIdx]){toast('Please answer or skip the question.');speak('Please answer or press Skip.');return;}
+  if(cIdx<cQs.length-1){cIdx++;loadQ();}
+  else{toast('All questions answered! Moving to document upload.');speak('All questions answered. Moving to document upload.');setTimeout(function(){showScr('documents');},1200);}
+}
+function prevQ(){if(cIdx>0){cIdx--;loadQ();}}
+function skipQ(){ans[cIdx]='(Skipped)';nextQ();}
+
+function toggleMic(){
+  var btn=document.getElementById('main-mic');
+  if(micOn){micOn=false;btn.classList.remove('listening');btn.textContent='\uD83C\uDF99';if(rec)rec.stop();return;}
+  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){toast('Voice not supported in this browser');return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  rec=new SR();rec.lang=LVM[lang]||'en-IN';rec.interimResults=true;
+  micOn=true;btn.classList.add('listening');btn.textContent='\u23F9';
+  rec.onresult=function(e){
+    var t=Array.from(e.results).map(function(r){return r[0].transcript;}).join('');
+    document.getElementById('vtxt').textContent=t;
+    if(e.results[e.results.length-1].isFinal){ans[cIdx]=t;updProg();chkRF(t.toLowerCase());}
+  };
+  rec.onerror=rec.onend=function(){micOn=false;btn.classList.remove('listening');btn.textContent='\uD83C\uDF99';};
+  rec.start();
+}
+
+var gmicOn=false;
+function toggleGlobalMic(){
+  var btn=document.getElementById('global-mic');
+  if(gmicOn){gmicOn=false;btn.textContent='\uD83C\uDF99 Speak';btn.classList.remove('listening');if(rec)rec.stop();return;}
+  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){toast('Voice not supported');return;}
+  toast('Listening: say Next, Back, Skip, or Logout');
+  speak('Listening. Say Next, Back, Skip, or Logout.');
+  gmicOn=true;btn.classList.add('listening');btn.textContent='\u23F9 Stop';
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  rec=new SR();rec.lang=LVM[lang]||'en-IN';rec.interimResults=false;
+  rec.onresult=function(e){
+    var t=e.results[0][0].transcript.toLowerCase();
+    if(t.indexOf('next')>=0)nextQ();
+    else if(t.indexOf('back')>=0)prevQ();
+    else if(t.indexOf('skip')>=0)skipQ();
+    else if(t.indexOf('logout')>=0)doLogout();
+    gmicOn=false;btn.textContent='\uD83C\uDF99 Speak';btn.classList.remove('listening');
+  };
+  rec.onerror=rec.onend=function(){gmicOn=false;btn.textContent='\uD83C\uDF99 Speak';btn.classList.remove('listening');};
+  rec.start();
+}
+
+function startMicInput(inpId,btnId){
+  var btn=document.getElementById(btnId);
+  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){toast('Voice not supported');return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  var r=new SR();r.lang=LVM[lang]||'en-IN';r.interimResults=false;
+  btn.textContent='\u23F9';
+  r.onresult=function(e){document.getElementById(inpId).value=e.results[0][0].transcript;btn.textContent='\uD83C\uDF99';};
+  r.onerror=r.onend=function(){btn.textContent='\uD83C\uDF99';};
+  r.start();
+}
+
+// ============ DOCUMENTS ============
+function handleUpload(inp,listId,ocrId){
+  var list=document.getElementById(listId);
+  var ocr=document.getElementById(ocrId);
+  Array.from(inp.files).forEach(function(f){
+    var d=document.createElement('div');
+    d.className='fitem';
+    d.innerHTML='<span>\uD83D\uDCCE '+f.name+' ('+(f.size/1024).toFixed(1)+' KB)</span><button class="rmv" onclick="this.parentElement.remove();updSidebarDocs()">\u2715</button>';
+    list.appendChild(d);
+  });
+  updSidebarDocs();
+  ocr.classList.add('show');
+  ocr.innerHTML='\u23F3 AI OCR Processing (Azure Form Recognizer)...';
+  setTimeout(function(){
+    ocr.innerHTML='<strong>\u2705 Extracted (AI OCR):</strong><br/>Date: '+new Date().toLocaleDateString('en-IN')+'<br/>Diagnosis: Migraine with Hypertension<br/>Medicines: Tab Amlodipine 5mg OD, Tab Paracetamol 500mg SOS<br/>Labs: Hb 12.5 g/dL (Normal), BP 140/90 mmHg<br/><span style="color:#e74c3c;font-weight:600">\u26A0 Abnormal: BP 140/90 mmHg \u2013 flagged</span>';
+    toast('Document processed by AI OCR successfully');
+  },2000);
+}
+function updSidebarDocs(){
+  var items=document.querySelectorAll('#rx-list .fitem,#lab-list .fitem,#dc-list .fitem');
+  var sb=document.getElementById('sidebar-docs');
+  sb.innerHTML=items.length===0?'No documents uploaded yet':
+    Array.from(items).map(function(i){return '<div style="padding:3px 0;border-bottom:1px solid #eee;font-size:.8rem">'+i.querySelector('span').textContent+'</div>';}).join('');
+}
+function goSummary(){
+  speak('Moving to your medical history summary.');
+  if(ans[0])document.getElementById('s-cc').value=ans[0];
+  if(ans[1])document.getElementById('s-onset').value=ans[1];
+  if(ans[2])document.getElementById('s-sev').value=ans[2];
+  if(ans[3])document.getElementById('s-site').value=ans[3];
+  if(ans[4])document.getElementById('s-rad').value=ans[4]||'No radiation';
+  if(ans[5])document.getElementById('s-assoc').value=ans[5];
+  if(ans[6])document.getElementById('s-exac').value=ans[6];
+  if(ans[7])document.getElementById('s-pmh').value=ans[7];
+  if(ans[8])document.getElementById('s-meds').value=ans[8];
+  if(ans[9])document.getElementById('s-allergy').value=ans[9];
+  document.getElementById('s-fam').value='As described by patient';
+  showScr('summary');
+}
+
+// ============ SUMMARY ============
+function readSummary(){
+  var cc=document.getElementById('s-cc').value;
+  var onset=document.getElementById('s-onset').value;
+  var sev=document.getElementById('s-sev').value;
+  speak('Medical History Summary. Chief complaint: '+cc+'. Onset: '+onset+'. Severity: '+sev+'. Please review all details on screen.');
+}
+function sendDoctor(){
+  var tkn='TKN-'+new Date().getFullYear()+'-'+Math.floor(Math.random()*9000+1000);
+  toast('Summary sent to doctor! Your token: '+tkn);
+  speak('Your summary has been sent to the doctor. Your token number is '+tkn+'. Please take a seat and wait to be called.');
+  setTimeout(function(){showModal('Session Complete','Your medical history has been sent to the doctor. Token: '+tkn+'. Please take a seat. Your session data will be deleted after doctor confirmation.',null);},1500);
+}
+function genFHIR(){
+  toast('Generating FHIR R4 Bundle...');
+  setTimeout(function(){document.getElementById('fhir-ok').style.display='block';toast('FHIR Bundle ready - HL7 FHIR R4 (Patient, Condition, MedicationStatement)');},1500);
+}
+function delSession(){
+  showModal('Delete All Data','Are you sure you want to permanently delete all your session data? This cannot be undone.',function(){
+    toast('Session data deleted permanently.');
+    speak('Your session data has been permanently deleted. Thank you.');
+    setTimeout(function(){doLogout();},2000);
+  });
+}
+function triggerEmergency(){
+  toast('EMERGENCY ALERT sent to facility staff!');
+  speak('Emergency alert sent. Help is on the way. Please stay calm.');
+}
+
+// ============ MODAL & TOAST ============
+function showModal(title,body,onOk){
+  document.getElementById('modal-t').textContent=title;
+  document.getElementById('modal-b').textContent=body;
+  document.getElementById('modal-ok').onclick=function(){closeModal();if(onOk)onOk();};
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+function toast(msg,dur){
+  dur=dur||3500;
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},dur);
+}
+
+// ============ INIT ============
+window.addEventListener('load',function(){
+  var btn=document.querySelector(".lang-btn[onclick*=\"'en'\"]");
+  setLang('en',btn);
+});
+</script>
+</body>
+</html>
